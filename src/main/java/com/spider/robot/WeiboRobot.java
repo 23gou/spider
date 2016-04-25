@@ -203,6 +203,9 @@ public class WeiboRobot extends DefaultRobot {
 													+ "}"
 													+ "r=r+']}';"
 													+ "return r;").toString();
+							vs = vs.replace("class=\"W_ficon ficon_forward", "class='W_ficon ficon_forward")
+									.replace("class=\"W_ficon ficon_repeat", "class='W_ficon ficon_repeat");
+							vs = vs.replace("S_ficon\"", "S_ficon'");
 							ObjectMapper objectMapper = new ObjectMapper();
 
 							Map<String, Object> r = objectMapper.readValue(vs,
@@ -550,6 +553,8 @@ public class WeiboRobot extends DefaultRobot {
 					.replace("评论", "").trim();
 			String like = rvs.get(i).get("like").toString().trim();
 
+			forward = PageParase.parseTextWithPatternHtml(forward, "(\\d+)");
+			
 			// 转发数
 			if (StringUtils.isBlank(forward)) {
 				forward = "0";
@@ -557,6 +562,9 @@ public class WeiboRobot extends DefaultRobot {
 
 			robotResult.setWeiboForward(robotResult.getWeiboForward()
 					+ Integer.valueOf(forward));
+			
+			comment = PageParase.parseTextWithPatternHtml(comment, "(\\d+)");
+			
 			// 评论数
 			if (StringUtils.isBlank(comment)) {
 				comment = "0";
@@ -564,6 +572,7 @@ public class WeiboRobot extends DefaultRobot {
 			robotResult.setWeiboComment(robotResult.getWeiboComment()
 					+ Integer.valueOf(comment));
 
+			like = PageParase.parseTextWithPatternHtml(like, "(\\d+)");
 			// 点赞数
 			if (StringUtils.isBlank(like)) {
 				like = "0";

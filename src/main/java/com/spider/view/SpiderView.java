@@ -228,7 +228,7 @@ public class SpiderView {
 	 */
 	protected void createContents() {
 		Display display = Display.getDefault();
-		shell = new Shell(display, SWT.CLOSE | SWT.ON_TOP);
+		shell = new Shell(display, SWT.CLOSE);
 		shell.setSize(1020, 628);
 		shell.setText("明星抓取");
 		shell.setBounds(1, 1, 1020, 750);
@@ -359,6 +359,7 @@ public class SpiderView {
 		button_7.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				// browser.setUrl("http://data.weibo.com/index");
 				// 继续，查询还没有抓取结果的人员
 				Task task = getSelectTask(combo_6);
 
@@ -384,6 +385,22 @@ public class SpiderView {
 				robotResult.setTaskId(task.getId());
 				List<Star> stars = starMng.getNotRobot(robotResult);
 				showTask();
+				// browser.setUrl(
+				// "http://data.weibo.com/index/ajax/getchartdata?&wid=1091324469970&sdate=2016-01-04&edate=2016-01-10&__rnd=1452653640686",
+				// null,
+				// new String[] {
+				// "Accept: application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+				// "Referer: http://data.weibo.com/index",
+				// "Content-Type: application/json",
+				// "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36"});
+
+				// Header header = new BasicHeader("referer",
+				// "http://data.weibo.com/index");
+				// String url =
+				// "http://data.weibo.com/index/ajax/getchartdata?&wid=1091324469970&sdate=2016-01-04&edate=2016-01-10&__rnd=1452653640686";
+				// String u = PageParase.toUrl(url,header
+				// );
+
 				grab(task, stars);
 			}
 		});

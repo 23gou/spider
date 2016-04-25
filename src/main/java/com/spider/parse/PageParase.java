@@ -6,6 +6,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.swt.browser.Browser;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -132,6 +140,41 @@ public class PageParase {
 
 		browser.evaluate(script);
 		return id;
+
+	}
+	
+	/**
+	 * 
+	 * 描述:添加链接跳转的元素，并跳转
+	 * 
+	 * @return
+	 * @author liyixing 2015年9月11日 下午3:56:28
+	 */
+	public static final String toUrl(String href,Header... headers) {
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpGet httpGet = new HttpGet(href);
+
+		// httpGet.setHeader(
+		// "user-agent",
+		// "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36");
+		// httpGet.setHeader("Accept",
+		// "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		// httpGet.setHeader("Upgrade-Insecure-Requests", "1");
+
+		if (ArrayUtils.isNotEmpty(headers)) {
+			httpGet.setHeaders(headers);
+		}
+
+		try {
+			// httpPost.set
+			CloseableHttpResponse response = httpclient.execute(httpGet);
+			HttpEntity entity = response.getEntity();
+			return EntityUtils.toString(entity);
+		} catch (Exception e) {
+			return null;
+		} finally {
+			// response.close();
+		}
 
 	}
 }

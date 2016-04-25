@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
@@ -44,6 +46,49 @@ public class WeiboDataRobot extends DefaultRobot {
 	@Autowired
 	private RobotResultMng robotResultMng;
 
+	private void parseValue(final Task task, final Browser browser,
+			final Star star, final RobotResult robotResult,
+			final Iterator<Star> starIterator,
+			final RobotListener robotListener, final ProgressAdapter my,
+			String text) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+//			String vs = PageParase.parseTextWithPatternHtml(text,
+//					"<BODY>([\\s\\S]{0,})</BODY>");
+
+//			if (StringUtils.isBlank(vs)) {
+//				vs = PageParase.parseTextWithPatternHtml(text,
+//						"<body>([\\s\\S]{0,})</body>");
+//			}
+			String vs =  text;
+			Map<String, Object> result = objectMapper.readValue(vs, Map.class);
+			int allData = 0;
+			try {
+				List<Map<String, Object>> results = (List<Map<String, Object>>) result
+						.get("zt");
+
+				for (Map<String, Object> oneDay : results) {
+					// 计算7天总数
+					Object v = oneDay.get("value");
+
+					if (v != null) {
+						allData += Integer.valueOf(v.toString());
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.info("明星{}的微博指数出错，重新开始", star.getName(), allData);
+				browser.addProgressListener(my);
+				browser.refresh();
+			}
+
+			LOGGER.info("明星{}的关键字总数是{}", star.getName(), allData);
+			robotResult.setWeiboData(allData);
+			next(task, browser, star, robotResult, starIterator, robotListener);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public void grabData(final Task task, final Browser browser,
 			final Star star, final RobotResult robotResult,
@@ -60,45 +105,8 @@ public class WeiboDataRobot extends DefaultRobot {
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
 						String text = browser.getText();
-						ObjectMapper objectMapper = new ObjectMapper();
-						try {
-							String vs = PageParase.parseTextWithPatternHtml(
-									text, "<BODY>([\\s\\S]{0,})</BODY>");
-
-							if (StringUtils.isBlank(vs)) {
-								vs = PageParase.parseTextWithPatternHtml(text,
-										"<body>([\\s\\S]{0,})</body>");
-							}
-							Map<String, Object> result = objectMapper
-									.readValue(vs, Map.class);
-							int allData = 0;
-							try {
-								List<Map<String, Object>> results = (List<Map<String, Object>>) result
-										.get("zt");
-
-								for (Map<String, Object> oneDay : results) {
-									// 计算7天总数
-									Object v = oneDay.get("value");
-
-									if (v != null) {
-										allData += Integer.valueOf(v.toString());
-									}
-								}
-							} catch (Exception e) {
-								LOGGER.info("明星{}的微博指数出错，重新开始", star.getName(),
-										allData);
-								browser.addProgressListener(my);
-								browser.refresh();
-							}
-
-							LOGGER.info("明星{}的关键字总数是{}", star.getName(),
-									allData);
-							robotResult.setWeiboData(allData);
-							next(task, browser, star, robotResult,
-									starIterator, robotListener);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
+						parseValue(task, browser, star, robotResult,
+								starIterator, robotListener, my, text);
 					}
 				});
 			}
@@ -136,25 +144,51 @@ public class WeiboDataRobot extends DefaultRobot {
 												// 计算时间，一周范围，上周一到这周
 												Date now = new Date();
 
-												browser.addProgressListener(weiboDataListener);
-												PageParase
-														.toUrl(browser,
-																"http://data.weibo.com/index/ajax/getchartdata?wid="
-																		+ id
-																		+ "&sdate="
-																		+ DateUtils
-																				.formatDate(
-																						preWeek,
-																						DateUtils.YYYY_MM_DD)
-																		+ "&edate="
-																		+ DateUtils
-																				.formatDate(
-																						UtilDateTime
-																								.getPreSundy(task
-																										.getStartDateTime()),
-																						DateUtils.YYYY_MM_DD)
-																		+ "&__rnd="
-																		+ now.getTime());
+												Header header = new BasicHeader(
+														"referer",
+														"http://data.weibo.com/index");
+												String url = "http://data.weibo.com/index/ajax/getchartdata?wid="
+														+ id
+														+ "&sdate="
+														+ DateUtils
+																.formatDate(
+																		preWeek,
+																		DateUtils.YYYY_MM_DD)
+														+ "&edate="
+														+ DateUtils.formatDate(
+																UtilDateTime
+																		.getPreSundy(task
+																				.getStartDateTime()),
+																DateUtils.YYYY_MM_DD)
+														+ "&__rnd="
+														+ now.getTime();
+												String u = PageParase.toUrl(
+														url, header);
+												parseValue(task, browser, star,
+														robotResult,
+														starIterator,
+														robotListener,
+														weiboDataListener, u);
+												// browser.addProgressListener(weiboDataListener);
+												// PageParase
+												// .toUrl(browser,
+												// "http://data.weibo.com/index/ajax/getchartdata?wid="
+												// + id
+												// + "&sdate="
+												// + DateUtils
+												// .formatDate(
+												// preWeek,
+												// DateUtils.YYYY_MM_DD)
+												// + "&edate="
+												// + DateUtils
+												// .formatDate(
+												// UtilDateTime
+												// .getPreSundy(task
+												// .getStartDateTime()),
+												// DateUtils.YYYY_MM_DD)
+												// + "&__rnd="
+												// + now.getTime());
+
 											}
 										});
 
