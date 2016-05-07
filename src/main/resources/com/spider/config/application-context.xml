@@ -64,25 +64,19 @@
 	<!-- 事务声明方式是注解 -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<bean id="weibourlRobot" class="com.spider.robot.WeiboUrlRobot">
-		<property name="next">
-			<ref bean="tiebaurlRobot" />
-		</property>
-	</bean>
-
-	<bean id="tiebaurlRobot" class="com.spider.robot.TiebaUrlRobot">
-		<property name="next">
-			<ref bean="tiebaRobot" />
-		</property>
-	</bean>
-
 	<bean id="tiebaRobot" class="com.spider.robot.TiebaRobot">
 		<property name="next">
-			<ref bean="weiboRobot" />
+			<ref bean="weiboContentRobot" />
 		</property>
 	</bean>
 
-	<bean id="weiboRobot" class="com.spider.robot.WeiboRobot">
+	<bean id="weiboContentRobot" class="com.spider.robot.WeiboContentRobot">
+		<property name="next">
+			<ref bean="weiboFansRobot" />
+		</property>
+	</bean>
+	
+	<bean id="weiboFansRobot" class="com.spider.robot.WeiboFansRobot">
 		<property name="next">
 			<ref bean="wechatRobot" />
 		</property>
@@ -108,25 +102,20 @@
 
 	<bean id="baiduNewsRobot" class="com.spider.robot.BaiduNewsRobot">
 		<property name="next">
-			<ref bean="defaultRobot" />
-		</property>
-	</bean>
-
-	<bean id="defaultRobot" class="com.spider.robot.DefaultRobot">
-		<property name="next">
-			<ref bean="weibourlRobot" />
+			<ref bean="baiduIndexRobot" />
 		</property>
 	</bean>
 
 	<bean id="baiduIndexRobot" class="com.spider.robot.BaiduIndexRobot">
 		<property name="next">
-			<ref bean="upateRobot" />
+			<ref bean="defaultRobot" />
 		</property>
 	</bean>
-
-	<bean id="upateRobot" class="com.spider.robot.UpateRobot">
+	
+	<bean id="defaultRobot" class="com.spider.robot.DefaultRobot">
 		<property name="next">
-			<ref bean="baiduIndexRobot" />
+			<ref bean="tiebaRobot" />
 		</property>
+		<property name="must" value="true"></property>
 	</bean>
 </beans>

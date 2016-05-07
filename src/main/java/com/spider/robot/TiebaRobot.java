@@ -1,6 +1,8 @@
 package com.spider.robot;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.browser.Browser;
@@ -37,17 +39,22 @@ public class TiebaRobot extends DefaultRobot {
 	@Autowired
 	private RobotResultMng robotResultMng;
 
+	public TiebaRobot() {
+		this.setName("贴吧会员与帖子增长");
+	}
+
 	@Override
-	public void grabData(final Task task, final Browser browser,
-			final Star star, final RobotResult robotResult,
-			final Iterator<Star> starIterator, final RobotListener robotListener) {
-		LOGGER.info("贴吧");
+	public void grabData(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
+			final RobotListener robotListener) {
+		LOGGER.info("贴吧会员与帖子增长");
 		// 处理贴吧关键字
 		final ProgressAdapter addTiebaNameListener = new ProgressAdapter() {
 			public void completed(ProgressEvent event) {
 				browser.removeProgressListener(this);
 				LOGGER.info("addTiebaNameListener");
-				parse(task, browser, star, robotResult, starIterator,
+				parse(options, task, browser, star, robotResult, starIterator,
 						robotListener);
 
 			}
@@ -64,115 +71,40 @@ public class TiebaRobot extends DefaultRobot {
 			 * @author liyixing 2015年9月25日 下午3:08:36
 			 */
 
-			private void parse(final Task task, final Browser browser,
-					final Star star, final RobotResult robotResult,
+			private void parse(Map<String, List<String>> options,
+					final Task task, final Browser browser, final Star star,
+					final RobotResult robotResult,
 					final Iterator<Star> starIterator,
 					final RobotListener robotListener) {
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
 						try {
 							LOGGER.info("parse");
-							Browser browser1 = browser;
 							// 解析贴吧关键字
 							String text = browser.getText();
 
-							//
-							// if (StringUtils.isBlank(text)) {
-							// text = browser1.evaluate(
-							// "return document.title").toString();
-							// text = text
-							// + browser1
-							// .evaluate(
-							// "return document.getElementsByTagName('body')[0].innerHTML")
-							// .toString();
-							// }
 							if (StringUtils.isBlank(text)) {
 								LOGGER.info("明星{}解析出来的贴吧数据是空：{}",
 										star.getName(), text);
-								parse(task, browser1, star, robotResult,
-										starIterator, robotListener);
+								grabData(options, task, browser, star,
+										robotResult, starIterator,
+										robotListener);
 								return;
 							}
-							String tiebaName = PageParase
-									.parseTextWithPatternHtml(text,
-											"<TITLE>[\\s]{0,}([\\S]{0,})_百度贴吧[\\s]{0,}<");
 
-							if (StringUtils.isBlank(tiebaName)) {
-								tiebaName = PageParase
-										.parseTextWithPatternHtml(text,
-												"<title>[\\s]{0,}([\\S]{0,})_百度贴吧[\\s]{0,}<");
-							}
+							String tiebaName = parseTitle(text);
 							LOGGER.info("明星{}解析出来的贴吧名称是{}", star.getName(),
 									tiebaName);
-							// LOGGER.info("明星{}解析出来的贴吧数据是：{}", star.getName(),
-							// text);
 
 							if (StringUtils.isNotBlank(tiebaName)) {
 								star.setTiebaName(tiebaName);
-								// LOGGER.info(text);
 								starMng.save(star);
-								// 解析出帖子数和会员数
-
-								// IE
-								String memberNumber = PageParase
-										.parseTextWithPatternHtml(text,
-												"<SPAN class=j_visit_num>(\\S{0,})</SPAN>")
-										.replace(",", "");
-
-								if (StringUtils.isBlank(memberNumber)) {
-									memberNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<SPAN class=card_menNum>(\\S{0,})</SPAN>")
-											.replace(",", "");
-								}
-
-								// 火狐
-								if (StringUtils.isBlank(memberNumber)) {
-									memberNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<span class=\"card_menNum\">(\\S{0,})</span>")
-											.replace(",", "");
-								}
-
-								if (StringUtils.isBlank(memberNumber)) {
-									memberNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<span class=\"j_visit_num\">(\\S{0,})</span>")
-											.replace(",", "");
-								}
-
+								// 解析出会员数
+								String memberNumber = parseMemberNumber(text);
 								Integer memberNum = Integer
 										.valueOf(memberNumber);
-								// IE
-								String postNumber = PageParase
-										.parseTextWithPatternHtml(text,
-												"<SPAN class=\"j_post_num post_num\">(\\S{0,})</SPAN>")
-										.replace(",", "");
-
-								// text.substring(text.indexOf("card_infoNum") -
-								// 20);
-								if (StringUtils.isBlank(postNumber)) {
-									postNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<SPAN class=card_infoNum>(\\S{0,})</SPAN>")
-											.replace(",", "")
-											.replace("</SPAN>", "");
-								}
-
-								if (StringUtils.isBlank(postNumber)) {
-									postNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<span class=\"card_infoNum\">(\\S{0,})</span>")
-											.replace(",", "")
-											.replace("</span>", "");
-								}
-
-								if (StringUtils.isBlank(postNumber)) {
-									postNumber = PageParase
-											.parseTextWithPatternHtml(text,
-													"<span class=\"j_post_num post_num\">(\\S{0,})</span>")
-											.replace(",", "");
-								}
+								// 帖子数
+								String postNumber = parsePostNumber(text);
 								Integer postNum = Integer.valueOf(postNumber);
 								robotResult.setTiebaMemberNum(memberNum);
 								robotResult.setTiebaMemberNumInc(memberNum);
@@ -180,42 +112,141 @@ public class TiebaRobot extends DefaultRobot {
 								robotResult.setTiebaPostNumInc(postNum);
 
 								// 计算增量
-								RobotResult caroRobotResult = new RobotResult();
-
-								if (task.getContrastTaskId() != null) {
-									caroRobotResult.setTaskId(task
-											.getContrastTaskId());
-									caroRobotResult.setStarId(star.getId());
-									RobotResult contrastRobotResult = robotResultMng
-											.getByTaskAndStar(caroRobotResult);
-
-									if (contrastRobotResult != null) {
-										// 计算增量
-										robotResult.setTiebaMemberNumInc(robotResult
-												.getTiebaMemberNum()
-												- contrastRobotResult
-														.getTiebaMemberNum());
-										robotResult.setTiebaPostNumInc(robotResult
-												.getTiebaPostNum()
-												- contrastRobotResult
-														.getTiebaPostNum());
-									}
-								}
-
-								next(task, browser, star, robotResult,
+								countInc(task, star, robotResult);
+								next(options, task, browser, star, robotResult,
 										starIterator, robotListener);
 							} else {
 								LOGGER.info("明星{}解析出来的贴吧名称为空是{}",
 										star.getName(), tiebaName);
-								grabData(task, browser, star, robotResult,
-										starIterator, robotListener);
+								grabData(options, task, browser, star,
+										robotResult, starIterator,
+										robotListener);
 								return;
 							}
 						} catch (Exception e) {
 							LOGGER.error("解析贴吧失败，重新解析", e);
-							parse(task, browser, star, robotResult, starIterator, robotListener);
+							parse(options, task, browser, star, robotResult,
+									starIterator, robotListener);
 							return;
 						}
+					}
+
+					/**
+					 * 
+					 * 描述:计算增量
+					 * 
+					 * @param task
+					 * @param star
+					 * @param robotResult
+					 * @author liyixing 2016年5月6日 下午3:34:17
+					 */
+					private void countInc(final Task task, final Star star,
+							final RobotResult robotResult) {
+						RobotResult caroRobotResult = new RobotResult();
+
+						if (task.getContrastTaskId() != null) {
+							caroRobotResult.setTaskId(task.getContrastTaskId());
+							caroRobotResult.setStarId(star.getId());
+							RobotResult contrastRobotResult = robotResultMng
+									.getByTaskAndStar(caroRobotResult);
+
+							if (contrastRobotResult != null) {
+								// 计算增量
+								robotResult.setTiebaMemberNumInc(robotResult
+										.getTiebaMemberNum()
+										- contrastRobotResult
+												.getTiebaMemberNum());
+								robotResult.setTiebaPostNumInc(robotResult
+										.getTiebaPostNum()
+										- contrastRobotResult.getTiebaPostNum());
+							}
+						}
+					}
+
+					private String parsePostNumber(String text) {
+						String postNumber = PageParase
+								.parseTextWithPatternHtml(text,
+										"<SPAN class=\"j_post_num post_num\">(\\S{0,})</SPAN>")
+								.replace(",", "");
+						if (StringUtils.isBlank(postNumber)) {
+							postNumber = PageParase
+									.parseTextWithPatternHtml(text,
+											"<SPAN class=card_infoNum>(\\S{0,})</SPAN>")
+									.replace(",", "").replace("</SPAN>", "");
+						}
+
+						if (StringUtils.isBlank(postNumber)) {
+							postNumber = PageParase
+									.parseTextWithPatternHtml(text,
+											"<span class=\"card_infoNum\">(\\S{0,})</span>")
+									.replace(",", "").replace("</span>", "");
+						}
+
+						if (StringUtils.isBlank(postNumber)) {
+							postNumber = PageParase
+									.parseTextWithPatternHtml(text,
+											"<span class=\"j_post_num post_num\">(\\S{0,})</span>")
+									.replace(",", "");
+						}
+						return postNumber;
+					}
+
+					/**
+					 * 
+					 * 描述:解析会员数
+					 * 
+					 * @param text
+					 * @return
+					 * @author liyixing 2016年5月6日 下午3:32:16
+					 */
+					private String parseMemberNumber(String text) {
+						String memberNumber = PageParase
+								.parseTextWithPatternHtml(text,
+										"<SPAN class=j_visit_num>(\\S{0,})</SPAN>")
+								.replace(",", "");
+
+						if (StringUtils.isBlank(memberNumber)) {
+							memberNumber = PageParase.parseTextWithPatternHtml(
+									text,
+									"<SPAN class=card_menNum>(\\S{0,})</SPAN>")
+									.replace(",", "");
+						}
+
+						if (StringUtils.isBlank(memberNumber)) {
+							memberNumber = PageParase
+									.parseTextWithPatternHtml(text,
+											"<span class=\"card_menNum\">(\\S{0,})</span>")
+									.replace(",", "");
+						}
+
+						if (StringUtils.isBlank(memberNumber)) {
+							memberNumber = PageParase
+									.parseTextWithPatternHtml(text,
+											"<span class=\"j_visit_num\">(\\S{0,})</span>")
+									.replace(",", "");
+						}
+						return memberNumber;
+					}
+
+					/**
+					 * 
+					 * 描述:贴吧名称解析
+					 * 
+					 * @param text
+					 * @return
+					 * @author liyixing 2016年5月6日 下午3:26:05
+					 */
+					private String parseTitle(String text) {
+						String tiebaName = PageParase.parseTextWithPatternHtml(
+								text,
+								"<TITLE>[\\s]{0,}([\\S]{0,})_百度贴吧[\\s]{0,}<");
+
+						if (StringUtils.isBlank(tiebaName)) {
+							tiebaName = PageParase
+									.parseTextWithPatternHtml(text,
+											"<title>[\\s]{0,}([\\S]{0,})_百度贴吧[\\s]{0,}<");
+						}
+						return tiebaName;
 					}
 				});
 			}

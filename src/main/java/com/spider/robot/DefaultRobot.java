@@ -2,6 +2,8 @@ package com.spider.robot;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Display;
@@ -25,7 +27,9 @@ public class DefaultRobot implements Robot {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(DefaultRobot.class);
 	private Date startDate = null;
-	
+	protected String name = "默认";
+	// 是否必须的
+	protected boolean must = false;
 	protected Robot next;
 
 	public void setNext(Robot next) {
@@ -38,40 +42,54 @@ public class DefaultRobot implements Robot {
 	 * 
 	 * @author liyixing 2015年9月10日 下午3:40:46
 	 */
-	protected void next(Task task, Browser browser, Star star,
-			RobotResult robotResult, Iterator<Star> starIterator,
-			RobotListener robotListener) {
-//		browser.setText("");
+	protected void next(Map<String, List<String>> options, Task task,
+			Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
 		if (next != null) {
-			next.grabData(task, browser, star, robotResult, starIterator,
-					robotListener);
+			List<String> dimensions = options.get("维度");
+			// 是否在需要抓取的维度内
+			DefaultRobot next = (DefaultRobot) this.next;
+			LOGGER.info("下一个机器人是：" + next.getName() + "," + next.isMust());
+
+			if (next.isMust() || dimensions.contains(next.getName())) {
+				LOGGER.info("需要执行下一个机器人");
+				next.grabData(options, task, browser, star, robotResult,
+						starIterator, robotListener);
+			} else {
+				LOGGER.info("不需要执行下一个机器人");
+				next.next(options, task, browser, star, robotResult,
+						starIterator, robotListener);
+			}
 		}
 	}
 
 	@Override
-	public void grabData(final Task task, final Browser browser, Star star,
-			RobotResult robotResult, final Iterator<Star> starIterator,
-			final RobotListener robotListener) {
+	public void grabData(Map<String, List<String>> options, final Task task,
+			final Browser browser, Star star, RobotResult robotResult,
+			final Iterator<Star> starIterator, final RobotListener robotListener) {
+		robotResult.setResultStatus(ResultStatus.完成.toString());
+		robotResult.setStartDateTime(task.getStartDateTime());
 
 		if (robotResult.getId() == null) {
-			robotResult.setResultStatus(ResultStatus.完成.toString());
-			robotResult.setStartDateTime(task.getStartDateTime());
 			LOGGER.info("明星{}保存", star.getName());
 			robotResultMng.add(robotResult);
-			robotResultMng.countRank(robotResult);
-			robotResultMng.countScore(robotResult);
-
-			Date endDate = new Date();
-
-			if (startDate != null) {
-				LOGGER.info("明星{}耗时", endDate.getTime() - startDate.getTime());
-			}
+		} else {
+			LOGGER.info("明星{}修改", star.getName());
+			robotResultMng.save(robotResult);
 		}
+		
+		robotResultMng.countRank(options, robotResult);
+		robotResultMng.countScore(robotResult);
 
-		// 直接进入下一个明星
+		Date endDate = new Date();
+		LOGGER.info("明星{}耗时", endDate.getTime()
+				- (startDate == null ? task.getStartDateTime().getTime()
+						: startDate.getTime()));
+
+		// 进入下一个明星
 		if (starIterator.hasNext()) {
-			// 过10秒之后再执行
-			Display.getDefault().timerExec((int) 5000, new Runnable() {
+			// 过3秒之后再执行
+			Display.getDefault().timerExec((int) 3000, new Runnable() {
 				public void run() {
 					RobotResult nextRobotResult = new RobotResult();
 					Star nextStar = starIterator.next();
@@ -82,7 +100,7 @@ public class DefaultRobot implements Robot {
 					nextRobotResult.setResultStatus(ResultStatus.创建.toString());
 					nextRobotResult.setEditStatus(EditStatus.未编辑.toString());
 					startDate = new Date();
-					next(task, browser, nextStar, nextRobotResult,
+					next(options, task, browser, nextStar, nextRobotResult,
 							starIterator, robotListener);
 				}
 			});
@@ -93,5 +111,49 @@ public class DefaultRobot implements Robot {
 			robotListener.completed(task, browser, star, robotResult,
 					starIterator);
 		}
+	}
+
+	public RobotResultMng getRobotResultMng() {
+		return robotResultMng;
+	}
+
+	public void setRobotResultMng(RobotResultMng robotResultMng) {
+		this.robotResultMng = robotResultMng;
+	}
+
+	public TaskMng getTaskMng() {
+		return taskMng;
+	}
+
+	public void setTaskMng(TaskMng taskMng) {
+		this.taskMng = taskMng;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Robot getNext() {
+		return next;
+	}
+
+	public boolean isMust() {
+		return must;
+	}
+
+	public void setMust(boolean must) {
+		this.must = must;
 	}
 }

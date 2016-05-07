@@ -46,21 +46,26 @@ public class WeiboDataRobot extends DefaultRobot {
 	@Autowired
 	private RobotResultMng robotResultMng;
 
-	private void parseValue(final Task task, final Browser browser,
-			final Star star, final RobotResult robotResult,
-			final Iterator<Star> starIterator,
+	public WeiboDataRobot() {
+		setName("微指数");
+	}
+
+	@SuppressWarnings("unchecked")
+	private void parseValue(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener, final ProgressAdapter my,
 			String text) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-//			String vs = PageParase.parseTextWithPatternHtml(text,
-//					"<BODY>([\\s\\S]{0,})</BODY>");
+			// String vs = PageParase.parseTextWithPatternHtml(text,
+			// "<BODY>([\\s\\S]{0,})</BODY>");
 
-//			if (StringUtils.isBlank(vs)) {
-//				vs = PageParase.parseTextWithPatternHtml(text,
-//						"<body>([\\s\\S]{0,})</body>");
-//			}
-			String vs =  text;
+			// if (StringUtils.isBlank(vs)) {
+			// vs = PageParase.parseTextWithPatternHtml(text,
+			// "<body>([\\s\\S]{0,})</body>");
+			// }
+			String vs = text;
 			Map<String, Object> result = objectMapper.readValue(vs, Map.class);
 			int allData = 0;
 			try {
@@ -83,16 +88,18 @@ public class WeiboDataRobot extends DefaultRobot {
 
 			LOGGER.info("明星{}的关键字总数是{}", star.getName(), allData);
 			robotResult.setWeiboData(allData);
-			next(task, browser, star, robotResult, starIterator, robotListener);
+			next(options, task, browser, star, robotResult, starIterator,
+					robotListener);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void grabData(final Task task, final Browser browser,
-			final Star star, final RobotResult robotResult,
-			final Iterator<Star> starIterator, final RobotListener robotListener) {
+	public void grabData(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
+			final RobotListener robotListener) {
 		robotResult.setWeiboData(0);
 		// 上周一
 		final Date preWeek = UtilDateTime.getPreMondy(task.getStartDateTime());
@@ -105,7 +112,7 @@ public class WeiboDataRobot extends DefaultRobot {
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
 						String text = browser.getText();
-						parseValue(task, browser, star, robotResult,
+						parseValue(options, task, browser, star, robotResult,
 								starIterator, robotListener, my, text);
 					}
 				});
@@ -129,7 +136,7 @@ public class WeiboDataRobot extends DefaultRobot {
 						LOGGER.info("明星{}的关键字ID是{}}", star.getName(), id);
 
 						if (StringUtils.isBlank(id)) {
-							next(task, browser, star, robotResult,
+							next(options, task, browser, star, robotResult,
 									starIterator, robotListener);
 							return;
 						}
@@ -164,31 +171,12 @@ public class WeiboDataRobot extends DefaultRobot {
 														+ now.getTime();
 												String u = PageParase.toUrl(
 														url, header);
-												parseValue(task, browser, star,
+												parseValue(options, task,
+														browser, star,
 														robotResult,
 														starIterator,
 														robotListener,
 														weiboDataListener, u);
-												// browser.addProgressListener(weiboDataListener);
-												// PageParase
-												// .toUrl(browser,
-												// "http://data.weibo.com/index/ajax/getchartdata?wid="
-												// + id
-												// + "&sdate="
-												// + DateUtils
-												// .formatDate(
-												// preWeek,
-												// DateUtils.YYYY_MM_DD)
-												// + "&edate="
-												// + DateUtils
-												// .formatDate(
-												// UtilDateTime
-												// .getPreSundy(task
-												// .getStartDateTime()),
-												// DateUtils.YYYY_MM_DD)
-												// + "&__rnd="
-												// + now.getTime());
-
 											}
 										});
 

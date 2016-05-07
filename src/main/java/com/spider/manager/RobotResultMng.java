@@ -1,5 +1,8 @@
 package com.spider.manager;
 
+import java.util.List;
+import java.util.Map;
+
 import com.common.jdbc.page.Pagination;
 import com.spider.entity.RobotResult;
 import com.spider.entity.Star;
@@ -45,7 +48,7 @@ public interface RobotResultMng {
 	 * @param robotResult
 	 * @author liyixing 2015年9月14日 下午3:11:16
 	 */
-	public void countRank(RobotResult robotResult);
+	public void countRank(Map<String,List<String>> options,RobotResult robotResult);
 
 	/**
 	 * 

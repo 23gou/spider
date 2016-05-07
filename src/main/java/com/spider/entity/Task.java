@@ -34,7 +34,7 @@ public class Task extends BaseTask {
 				+ "["
 				+ getTaskStatus()
 				+ "]"
-				+ "[" + getType() + "]");
+				+ "[" + getType() + "]" + "[" + getId() + "]");
 
 		return super.getName();
 	}

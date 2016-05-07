@@ -47,14 +47,6 @@ public class TaskDaoImpl extends JdbcTemplateBaseDao implements TaskDao {
 	public Pagination selectWithPage(Task task, Integer pageNo, Integer pageSize, String orderBy) {
 		SqlBuilder sqlBuilder = new SqlBuilder("select * from  Task where 1=1");
 
-		// if (StringUtils.isNotBlank(star.getName())) {
-		// sqlBuilder.andLike("name", "%" + star.getName() + "%");
-		// }
-		//
-		// if (star.getCategoryId() != null) {
-		// sqlBuilder.andEqualTo("categoryId", star.getCategoryId());
-		// }
-
 		if (sqlBuilder.ifNotNull(orderBy)) {
 			sqlBuilder.append(" order by " + orderBy);
 		} else {

@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.browser.Browser;
@@ -43,10 +45,15 @@ public class BaiduNewsRobot extends DefaultRobot {
 	@Autowired
 	private RobotResultMng robotResultMng;
 
+	public BaiduNewsRobot() {
+		this.setName("百度新闻");
+	}
+
 	@Override
-	public void grabData(final Task task, final Browser browser,
-			final Star star, final RobotResult robotResult,
-			final Iterator<Star> starIterator, final RobotListener robotListener) {
+	public void grabData(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
+			final RobotListener robotListener) {
 		// 上周一
 		final Date preWeek = UtilDateTime.getPreMondy(task.getStartDateTime());
 		// 上周日
@@ -55,16 +62,16 @@ public class BaiduNewsRobot extends DefaultRobot {
 		// 进入指数首页，然后跳转到ID获取页
 		final ProgressAdapter indexId = new ProgressAdapter() {
 			public void completed(ProgressEvent event) {
-				// Star temp = star;
 				browser.removeProgressListener(this);
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
 						// 计算时间，一周范围，上周一到这周
 						String text = browser.getText();
+
 						if (text.indexOf("抱歉，没有找到与“<EM>|<em>" + star.getName()
 								+ "</EM>|<em>” 相关的新闻内容。") >= 0) {
 							robotResult.setBaiduNews(0);
-							next(task, browser, star, robotResult,
+							next(options, task, browser, star, robotResult,
 									starIterator, robotListener);
 							return;
 						}
@@ -88,13 +95,15 @@ public class BaiduNewsRobot extends DefaultRobot {
 						if (StringUtils.isNotBlank(num)) {
 							LOGGER.info("明星{}的百度新闻数是{}", star.getName(), num);
 							robotResult.setBaiduNews(Integer.valueOf(num));
-							next(task, browser, star, robotResult,
+							next(options, task, browser, star, robotResult,
 									starIterator, robotListener);
 
 							return;
 						} else {
-							LOGGER.info("明星{}的百度新闻数检索失败，重新开始检索，页面数据是{}", star.getName(), text);
-							grabData(task, browser, star, robotResult, starIterator, robotListener);
+							LOGGER.info("明星{}的百度新闻数检索失败，重新开始检索，页面数据是{}",
+									star.getName(), text);
+							grabData(options, task, browser, star, robotResult,
+									starIterator, robotListener);
 							return;
 						}
 					}

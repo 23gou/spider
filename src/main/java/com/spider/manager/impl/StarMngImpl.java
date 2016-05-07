@@ -63,53 +63,12 @@ public class StarMngImpl implements StarMng {
 	}
 
 	@Override
-	public List<Star> getAll() {
-		return starDao.getAll();
+	public List<Star> getList(List<String> categoryIds) {
+		return starDao.getList(categoryIds);
 	}
 
 	@Override
 	public List<Star> selectNotBaiduIndexRobot(RobotResult robotResult) {
 		return starDao.selectNotBaiduIndexRobot(robotResult);
 	}
-
-	// @Override
-	// public int importExcel(String fileName) {
-	// initWorkbook(fileName);
-	// readAll();
-	// return 0;
-	// }
-	//
-	// /**
-	// * 描述:把excel所有的数据转化成对象
-	// *
-	// * @author liyixing 2015年9月9日 上午10:44:05
-	// */
-	// private void readAll() {
-	// List<Star> stars = new ArrayList<Star>();
-	//
-	// while (UtilJxl.next()) {
-	// //姓名
-	// Star star = new Star();
-	//
-	// star.setName(UtilJxl.readCell("姓名"));
-	// star.setWeiboUrl(UtilJxl.readCell("微博地址"));
-	// star.setTiebaUrl(UtilJxl.readCell("贴吧地址"));
-	// star.set(UtilJxl.readCell("分类"));
-	// }
-	// }
-	//
-	// /**
-	// * 描述:初始化工作簿
-	// *
-	// * @param fileName
-	// * @author liyixing 2015年9月9日 上午10:30:38
-	// */
-	// private void initWorkbook(String fileName) {
-	// try {
-	// InputStream inputStream = new FileInputStream(fileName);
-	// UtilJxl.initWorkBook(inputStream);
-	// } catch (Exception e) {
-	// throw new RuntimeException(e);
-	// }
-	// }
 }

@@ -82,7 +82,7 @@ public interface StarDao {
 	 * @return
 	 * @author liyixing 2015年9月9日 下午5:57:11
 	 */
-	public List<Star> getAll();
+	public List<Star> getList(List<String> categoryIds);
 
 	/**
 	 * 

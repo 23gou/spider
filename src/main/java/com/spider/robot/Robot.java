@@ -1,6 +1,8 @@
 package com.spider.robot;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.browser.Browser;
 
@@ -11,23 +13,14 @@ import com.spider.entity.Task;
 public interface Robot {
 	/**
 	 * 
-	 * 描述:抓取任务
-	 * 
-	 * @param content
-	 * @author liyixing 2015年9月10日 上午9:32:18
-	 */
-	// public void grab(Task task, Browser browser, List<Star> stars);
-
-	/**
-	 * 
 	 * 描述:抓取数据
 	 * 
 	 * @param content
 	 * @author liyixing 2015年9月10日 上午9:32:18
 	 */
-	public void grabData(Task task, Browser browser, Star star,
-			RobotResult robotResult, Iterator<Star> starIterator,
-			RobotListener robotListener);
+	public void grabData(Map<String, List<String>> options, Task task,
+			Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener);
 
 	/**
 	 * 
@@ -38,13 +31,6 @@ public interface Robot {
 	 */
 	public void setNext(Robot next);
 
-	/**
-	 * 
-	 * 描述:下一个爬虫开始
-	 * 
-	 * @author liyixing 2015年9月10日 上午11:06:34
-	 */
-	// public boolean next(Task task, Browser browser, Star stars);
 	/**
 	 * 
 	 * 

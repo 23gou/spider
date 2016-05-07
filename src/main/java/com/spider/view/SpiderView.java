@@ -12,6 +12,8 @@ import java.util.Map;
 import jxl.Sheet;
 import jxl.Workbook;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.swt.SWT;
@@ -35,6 +37,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -66,6 +69,7 @@ import com.spider.manager.CategoryMng;
 import com.spider.manager.RobotResultMng;
 import com.spider.manager.StarMng;
 import com.spider.manager.TaskMng;
+import com.spider.manager.TaskOptionMng;
 import com.spider.robot.Robot;
 import com.spider.robot.Robot.RobotListener;
 
@@ -80,50 +84,6 @@ import com.spider.robot.Robot.RobotListener;
  */
 @Component
 public class SpiderView {
-	public static class MyBrowser extends Browser {
-
-		protected void checkSubclass() {
-
-		}
-
-		public MyBrowser(Composite parent, int style) {
-			super(parent, style);
-			final MyBrowser my = this;
-
-			this.addProgressListener(new ProgressListener() {
-				@Override
-				public void completed(ProgressEvent event) {
-				}
-
-				@Override
-				public void changed(ProgressEvent event) {
-					String text = my.getSuperText();
-					if (StringUtils.isNotBlank(text)) {
-						my.setTextNotEmpty(text);
-					}
-				}
-			});
-		}
-
-		private String text;
-
-		public String getSuperText() {
-			return super.getText();
-		}
-
-		public String getText() {
-			if (text == null) {
-				return super.getText();
-			}
-
-			return text;
-		}
-
-		public void setTextNotEmpty(String text) {
-			this.text = text;
-		}
-	}
-
 	private Logger logger = LoggerFactory.getLogger(SpiderView.class);
 	protected Shell shell;
 	private Table table;
@@ -131,28 +91,22 @@ public class SpiderView {
 	private Table table_1;
 	private Text text_1;
 	private Text text_2;
-	private static CategoryMng categoryMng;
 	private Combo combo_1;
 	private List<Category> categories;
 	private Map<Long, Category> categoriesById;
 	private Map<Long, Category> categoriesByName;
 	private Label lblNewLabel_2;
-	private static SpiderView window;
 	private Combo combo_3;
 	private Text text_3;
 	private Combo combo_4;
 	private Text text_4;
 	private Text text_5;
-	private static StarMng starMng;
-	private static Robot robot;
-	private static TaskMng taskMng;
 	private List<Task> tasks;
 	private Map<Long, Task> tasksById;
 	private Map<Long, Task> tasksByName;
 	private Combo combo_2;
 	private Combo combo;
 	private Combo combo_5;
-	private static RobotResultMng robotResultMng;
 	private Button button;
 	private Button button_7;
 	private Label lblNewLabel_5;
@@ -160,10 +114,21 @@ public class SpiderView {
 	private Group group_5;
 	private Group starEdit;
 	private Group robotResultEdit;
-	private boolean baiduLogin = false;
-	private boolean weiboLogin = false;
 	private Combo combo_6;
 	private Button button_11;
+	private MyBrowser browser;
+	private Text text_6;
+	private boolean baiduLogin = false;
+	private boolean weiboLogin = false;
+	private static RobotResultMng robotResultMng;
+	private static StarMng starMng;
+	private static Robot robot;
+	private static TaskMng taskMng;
+	private static SpiderView window;
+	private static CategoryMng categoryMng;
+	private static TaskOptionMng taskOptionMng;
+	private Date last = new Date();
+	private boolean start = false;
 	/**
 	 * 明星表格分页
 	 */
@@ -172,16 +137,6 @@ public class SpiderView {
 	 * 结果表格分页
 	 */
 	private Pagination robotResultPagination;
-	private Browser browser;
-	private Text text_6;
-	private static Robot baiduIndexRobot;
-
-	/**
-	 * @wbp.parser.entryPoint
-	 */
-	// public SpiderView() {
-	// this.open();
-	// }
 
 	/**
 	 * Launch the application.
@@ -196,10 +151,10 @@ public class SpiderView {
 			com.spider.common.UtilApplicationContext.load();
 			categoryMng = UtilApplicationContext.get(CategoryMng.class);
 			starMng = UtilApplicationContext.get(StarMng.class);
-			robot = UtilApplicationContext.get("weibourlRobot");
-			baiduIndexRobot = UtilApplicationContext.get("baiduIndexRobot");
+			robot = UtilApplicationContext.get("tiebaRobot");
 			taskMng = UtilApplicationContext.get(TaskMng.class);
 			robotResultMng = UtilApplicationContext.get(RobotResultMng.class);
+			taskOptionMng = UtilApplicationContext.get(TaskOptionMng.class);
 			window = new SpiderView();
 			window.open();
 		} catch (Exception e) {
@@ -267,60 +222,52 @@ public class SpiderView {
 				if (combo.getItems().length > 1
 						&& combo.getSelectionIndex() < 1) {
 					errorMessage("请选择对比时间");
-
+					alertMsg(shell, "请选择对比时间");
 					return;
 				}
 
-				// if (!UtilImage.getInstance().isSelect) {
-				// errorMessage("请选择百度指数需要截图的范围");
-				// browser.setUrl("http://index.baidu.com/?tpl=trend&word=%B2%E2%CA%D4");
-				// return;
-				// }
+				TaskOptionDialog taskOptionDialog = new TaskOptionDialog(shell,
+						SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+				@SuppressWarnings("unchecked")
+				Map<String, List<String>> result = (Map<String, List<String>>) taskOptionDialog
+						.open();
 
-				// 对比时间
-				Task ctask = getSelectTask(combo);
-				Task task = new Task();
+				if (MapUtils.isNotEmpty(result)
+						&& CollectionUtils.isNotEmpty(result.get("分类"))
+						&& CollectionUtils.isNotEmpty(result.get("维度"))) {
+					// 保存每个选项
+					List<String> categories = result.get("分类");
+					List<String> dimensions = result.get("维度");
 
-				if (ctask != null) {
-					task.setContrastTaskId(ctask.getId());
+					for (String category : categories) {
+						taskOptionMng.add("分类", category);
+					}
+
+					for (String dimension : dimensions) {
+						taskOptionMng.add("维度", dimension);
+					}
+					// 对比时间
+					Task ctask = getSelectTask(combo);
+					Task task = new Task();
+
+					if (ctask != null) {
+						task.setContrastTaskId(ctask.getId());
+					}
+					task.setStartDateTime(new Date());
+					task.setTaskStatus(TaskStatus.未完成.toString());
+					task.setType(TaskType.抓取.toString());
+					taskMng.add(task);
+					List<Star> stars = starMng.getList(categories);
+
+					showTask();
+					grab(result, task, stars);
 				}
-				task.setStartDateTime(new Date());
-				task.setTaskStatus(TaskStatus.未完成.toString());
-				task.setType(TaskType.抓取.toString());
-				taskMng.add(task);
-				List<Star> stars = starMng.getAll();
-
-				showTask();
-				grab(task, stars);
-				// 保存状态
-				// task.setTaskStatus(Task.TaskStatus.完成.toString());
-				// taskMng.save(task);
 			}
 		});
 		button.setText("\u5F00\u59CB");
 		button.setBounds(295, 11, 80, 27);
-		if ("IE".equals(System.getProperty("browser"))) {
-			logger.info("IE");
-			browser = new Browser(group_2, SWT.NONE);
-		} else {
-			browser = new Browser(group_2, SWT.NONE | SWT.MOZILLA);
-			logger.info("MOZILLA");
-		}
 
-		browser.addProgressListener(new ProgressListener() {
-			@Override
-			public void completed(ProgressEvent event) {
-				logger.info("页面加载完毕，当前url{}", browser.getUrl());
-				last = new Date();
-			}
-
-			@Override
-			public void changed(ProgressEvent event) {
-			}
-		});
-		browser.setUrl("http://baidu.com");
-		browser.setBounds(10, 49, 986, 583);
-		browser.setJavascriptEnabled(true);
+		initBrowser(group_2);
 		// browser.setUrl("about:config");
 		final Button button_6 = new Button(group_2, SWT.NONE);
 		Button button_4 = new Button(group_2, SWT.NONE);
@@ -365,11 +312,13 @@ public class SpiderView {
 
 				if (task == null) {
 					errorMessage("请选择需要继续的任务");
+					alertMsg(shell, "请选择需要继续的任务");
 					return;
 				}
 
 				if (TaskStatus.完成.toString().equals(task.getTaskStatus())) {
 					errorMessage("该任务已经完成，无需继续");
+					alertMsg(shell, "该任务已经完成，无需继续");
 					return;
 				}
 
@@ -385,23 +334,6 @@ public class SpiderView {
 				robotResult.setTaskId(task.getId());
 				List<Star> stars = starMng.getNotRobot(robotResult);
 				showTask();
-				// browser.setUrl(
-				// "http://data.weibo.com/index/ajax/getchartdata?&wid=1091324469970&sdate=2016-01-04&edate=2016-01-10&__rnd=1452653640686",
-				// null,
-				// new String[] {
-				// "Accept: application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-				// "Referer: http://data.weibo.com/index",
-				// "Content-Type: application/json",
-				// "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36"});
-
-				// Header header = new BasicHeader("referer",
-				// "http://data.weibo.com/index");
-				// String url =
-				// "http://data.weibo.com/index/ajax/getchartdata?&wid=1091324469970&sdate=2016-01-04&edate=2016-01-10&__rnd=1452653640686";
-				// String u = PageParase.toUrl(url,header
-				// );
-
-				grab(task, stars);
 			}
 		});
 		button_7.setText("\u7EE7\u7EED");
@@ -430,17 +362,6 @@ public class SpiderView {
 					return;
 				}
 
-				// if (!TaskStatus.完成.toString().equals(task.getTaskStatus())) {
-				// errorMessage("只有其他数据已经抓取完成的任务才能抓取百度指数");
-				// return;
-				// }
-
-				// if (!UtilImage.getInstance().isSelect) {
-				// errorMessage("请选择百度指数需要截图的范围");
-				// browser.setUrl("http://index.baidu.com/?tpl=trend&word=%B2%E2%CA%D4");
-				// return;
-				// }
-
 				// 开始执行
 				RobotResult robotResult = new RobotResult();
 
@@ -448,7 +369,6 @@ public class SpiderView {
 				List<Star> stars = starMng
 						.selectNotBaiduIndexRobot(robotResult);
 				showTask();
-				grabBiduIndex(task, stars);
 			}
 		});
 		button_11.setBounds(928, 11, 58, 27);
@@ -642,32 +562,7 @@ public class SpiderView {
 		btnNewButton_9.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (StringUtils.isBlank(text_6.getText())) {
-					errorMessage("请输入百度指数");
-					return;
-				}
-
-				if (!NumberUtils.isNumber(text_6.getText())) {
-					errorMessage("百度指数必须是数字");
-					return;
-				}
-
-				if (robotResultEdit.getData() == null) {
-					errorMessage("请选择要编辑的数据");
-					return;
-				}
-
-				// 保存
-				RobotResult robotResult = robotResultMng
-						.getById((Long) robotResultEdit.getData());
-				robotResult.setBaiduIndex(Integer.valueOf(text_6.getText()));
-				robotResult.setEditStatus(EditStatus.已编辑.toString());
-				robotResultMng.save(robotResult);
-				robotResultMng.countRank(robotResult);
-				robotResultMng.countScore(robotResult);
-				// showNewRobotResultTableItem(robotResult);
-				refreshRobotResultTableItem();
-				clearResultEdit();
+				saveBaiduIndex();
 			}
 		});
 		btnNewButton_9.setText("\u4FDD\u5B58\u6307\u6570");
@@ -679,36 +574,7 @@ public class SpiderView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (StringUtils.isBlank(text_6.getText())) {
-					errorMessage("请输入百度指数");
-					return;
-				}
-
-				if (!NumberUtils.isNumber(text_6.getText())) {
-					errorMessage("百度指数必须是数字");
-					return;
-				}
-
-				if (robotResultEdit.getData() == null) {
-					errorMessage("请选择要编辑的数据");
-					return;
-				}
-
-				if (text_6.getText().equals("0")) {
-					return;
-				}
-
-				// 保存
-				RobotResult robotResult = robotResultMng
-						.getById((Long) robotResultEdit.getData());
-				robotResult.setBaiduIndex(Integer.valueOf(text_6.getText()));
-				robotResult.setEditStatus(EditStatus.已编辑.toString());
-				robotResultMng.save(robotResult);
-				robotResultMng.countRank(robotResult);
-				robotResultMng.countScore(robotResult);
-				// showNewRobotResultTableItem(robotResult);
-				refreshRobotResultTableItem();
-				clearResultEdit();
+				saveBaiduIndex();
 			}
 
 			@Override
@@ -1053,6 +919,38 @@ public class SpiderView {
 	}
 
 	/**
+	 * 
+	 * 描述:初始化浏览器
+	 * 
+	 * @param group_2
+	 * @author liyixing 2016年5月6日 上午9:44:13
+	 */
+	private void initBrowser(Group group_2) {
+		if ("IE".equals(System.getProperty("browser"))) {
+			logger.info("IE");
+			browser = new MyBrowser(group_2, SWT.NONE);
+		} else {
+			browser = new MyBrowser(group_2, SWT.NONE | SWT.MOZILLA);
+			logger.info("MOZILLA");
+		}
+
+		browser.addProgressListener(new ProgressListener() {
+			@Override
+			public void completed(ProgressEvent event) {
+				logger.info("页面加载完毕，当前url{}", browser.getUrl());
+				last = new Date();
+			}
+
+			@Override
+			public void changed(ProgressEvent event) {
+			}
+		});
+		browser.setUrl("http://baidu.com");
+		browser.setBounds(10, 49, 986, 583);
+		browser.setJavascriptEnabled(true);
+	}
+
+	/**
 	 * 描述:获取选中的类目
 	 * 
 	 * @author liyixing 2015年9月9日 下午3:18:36
@@ -1122,6 +1020,7 @@ public class SpiderView {
 	 * 
 	 * @author liyixing 2015年9月8日 下午6:46:43
 	 */
+	@SuppressWarnings("unchecked")
 	public void showTask() {
 		Task task = new Task();
 		tasks = (List<Task>) taskMng.find(task, 1, Integer.MAX_VALUE).getList();
@@ -1140,18 +1039,10 @@ public class SpiderView {
 		combo.add("全部任务");
 		combo_6.add("全部任务");
 
-		int max = 20;
-		int i = 1;
-
 		for (Task task2 : tasks) {
-			if (i > max) {
-				break;
-			}
-
 			combo.add(task2.getName());
 			combo_2.add(task2.getName());
 			combo_6.add(task2.getName());
-			i++;
 		}
 
 		combo_2.select(0);
@@ -1391,32 +1282,6 @@ public class SpiderView {
 
 	/**
 	 * 
-	 * 描述:给抓取结果表格添加显示一条数据
-	 * 
-	 * @param star
-	 * @author liyixing 2015年9月9日 下午3:58:25
-	 */
-	private void showNewRobotResultTableItem(RobotResult robotResult) {
-		TableItem tableItem = null;
-
-		// id匹配，当先点击查询，或者下一页，上一页之类的按钮，造成数据重新加载，通过getSelectionIndex无法获取
-		for (TableItem item : table_1.getItems()) {
-			if (item.getText(0).equals(robotResult.getId().toString())) {
-				tableItem = item;
-
-				break;
-			}
-		}
-
-		if (tableItem == null) {
-			return;
-		}
-
-		showRobotResultTableItem(robotResult, tableItem);
-	}
-
-	/**
-	 * 
 	 * 描述:刷新结果表格
 	 * 
 	 * @param star
@@ -1457,6 +1322,7 @@ public class SpiderView {
 	 * 
 	 * @author liyixing 2015年9月9日 下午5:19:33
 	 */
+	@SuppressWarnings("unchecked")
 	private void showStars() {
 		table.removeAll();
 		Star star = new Star();
@@ -1486,6 +1352,7 @@ public class SpiderView {
 	 * 
 	 * @author liyixing 2015年9月9日 下午5:19:33
 	 */
+	@SuppressWarnings("unchecked")
 	private void showRobotResult() {
 		table_1.removeAll();
 		RobotResult robotResult = new RobotResult();
@@ -1523,10 +1390,6 @@ public class SpiderView {
 				.getList()) {
 			showRobotResultTableItem(robotResultTemp);
 		}
-
-		// if (table_1.getItemCount() > 0) {
-		// table_1.select(0);
-		// }
 	}
 
 	/**
@@ -1556,58 +1419,6 @@ public class SpiderView {
 	}
 
 	/**
-	 * 描述:抓取百度指数
-	 * 
-	 * @param task
-	 * @param stars
-	 * @param star
-	 * @param thisRobotResult
-	 * @author liyixing 2015年9月14日 上午11:09:53
-	 */
-
-	private void grabBiduIndex(Task task, List<Star> stars) {
-		hideTaskButton();
-
-		// 当前按钮和对比按钮
-		if (task.getContrastTaskId() != null) {
-			Task t = tasksById.get(task.getContrastTaskId());
-
-			if (t != null) {
-				selectCombo(combo, t.getName());
-			}
-		}
-
-		selectCombo(combo_6, task.getName());
-
-		Iterator<Star> starIterator = (Iterator<Star>) stars.iterator();
-
-		if (starIterator.hasNext()) {
-			start = true;
-			check();
-			last = new Date();
-			Star currentStar = starIterator.next();
-			RobotResult currentRobotResult = new RobotResult();
-
-			currentRobotResult.setTaskId(task.getId());
-			currentRobotResult.setStarId(currentStar.getId());
-			currentRobotResult = robotResultMng
-					.getByTaskAndStar(currentRobotResult);
-			baiduIndexRobot.grabData(task, browser, currentStar,
-					currentRobotResult, starIterator, new RobotListener() {
-						public void completed(Task task, Browser browser,
-								Star star, RobotResult robotResult,
-								Iterator<Star> starIterator) {
-							errorMessage("抓取任务完成");
-							start = false;
-							showTask();
-							showRobotResult();
-							showTaskButton();
-						}
-					});
-		}
-	}
-
-	/**
 	 * 描述:
 	 * 
 	 * @param task
@@ -1617,7 +1428,8 @@ public class SpiderView {
 	 * @author liyixing 2015年9月14日 上午11:09:53
 	 */
 
-	private void grab(Task task, List<Star> stars) {
+	private void grab(Map<String, List<String>> options, Task task,
+			List<Star> stars) {
 		hideTaskButton();
 
 		// 当前按钮和对比按钮
@@ -1630,7 +1442,6 @@ public class SpiderView {
 		}
 
 		selectCombo(combo_6, task.getName());
-
 		Iterator<Star> starIterator = (Iterator<Star>) stars.iterator();
 
 		if (starIterator.hasNext()) {
@@ -1646,8 +1457,8 @@ public class SpiderView {
 			currentRobotResult.setTaskId(task.getId());
 			currentRobotResult.setCategoryId(currentStar.getCategoryId());
 
-			robot.grabData(task, browser, currentStar, currentRobotResult,
-					starIterator, new RobotListener() {
+			robot.grabData(options, task, browser, currentStar,
+					currentRobotResult, starIterator, new RobotListener() {
 						public void completed(Task task, Browser browser,
 								Star star, RobotResult robotResult,
 								Iterator<Star> starIterator) {
@@ -1656,6 +1467,7 @@ public class SpiderView {
 							showTask();
 							showRobotResult();
 							showTaskButton();
+							alertMsg(shell, "抓取任务完成");
 						}
 					});
 		}
@@ -1876,6 +1688,7 @@ public class SpiderView {
 	 * 
 	 * @author liyixing 2015年9月16日 下午4:10:52
 	 */
+	@SuppressWarnings("unchecked")
 	public void export() {
 		// List<Star> stars = starMng.getAll();
 		try {
@@ -2060,21 +1873,25 @@ public class SpiderView {
 		}
 	}
 
-	private Date last = new Date();
-	private boolean start = false;
-
 	// 检查浏览器是否正常运行下去，很多情况，比如百度贴吧，页面实际上加载完成了，但是加载事件不执行，需要系统监控,来让系统继续下去
 	public void check() {
-		Display.getDefault().timerExec((int) 4000, new Runnable() {
+		Display.getDefault().timerExec((int) 1000, new Runnable() {
 			public void run() {
 				logger.info("start {},time {}", start, new Date().getTime()
 						- last.getTime());
+				String url = browser.getUrl();
+				logger.info("url:" + url);
+				String myurl = browser.getMyUrl();
+				logger.info("myurl:" + myurl);
+				String text = browser.getText();
 
 				if (start) {
-					if (new Date().getTime() - last.getTime() >= 16000) {
+					if (new Date().getTime() - last.getTime() >= 25000) {
+						logger.info("是否百度贴吧：" + (text.indexOf("百度贴吧") > 0));
 						// 超过一定时间，浏览器没有反应，怎需要刷新页面
-						logger.info("超过{}，浏览器没有反应，怎需要刷新页面{}", 16000);
-						browser.refresh();
+						logger.info("超过{}，浏览器没有反应，怎需要刷新页面{}", 25000);
+
+						browser.setUrl(myurl);
 						last = new Date();
 					}
 
@@ -2082,5 +1899,93 @@ public class SpiderView {
 				}
 			}
 		});
+	}
+
+	private void saveBaiduIndex() {
+		if (StringUtils.isBlank(text_6.getText())) {
+			errorMessage("请输入百度指数");
+			return;
+		}
+
+		if (!NumberUtils.isNumber(text_6.getText())) {
+			errorMessage("百度指数必须是数字");
+			return;
+		}
+
+		if (robotResultEdit.getData() == null) {
+			errorMessage("请选择要编辑的数据");
+			return;
+		}
+
+		if (text_6.getText().equals("0")) {
+			return;
+		}
+
+		// 保存
+		RobotResult robotResult = robotResultMng.getById((Long) robotResultEdit
+				.getData());
+		Map<String, List<String>> options = taskOptionMng.getMapByTaskAndName(
+				robotResult.getTaskId(), "维度");
+		robotResult.setBaiduIndex(Integer.valueOf(text_6.getText()));
+		robotResult.setEditStatus(EditStatus.已编辑.toString());
+		robotResultMng.save(robotResult);
+		robotResultMng.countRank(options, robotResult);
+		robotResultMng.countScore(robotResult);
+		// showNewRobotResultTableItem(robotResult);
+		refreshRobotResultTableItem();
+		clearResultEdit();
+	}
+
+	/**
+	 * 
+	 * 
+	 * 描述:浏览器seturl之后，可能会造成页面没有加载。通过geturl获取到的地址是seturl之前的地址<br>
+	 * 该浏览器会在每次seturl之后，保留当时set的url地址
+	 *
+	 * @author liyixing
+	 * @version 1.0
+	 * @since 2016年5月7日 上午11:02:51
+	 */
+	public class MyBrowser extends Browser {
+		/**
+		 * 保留URL
+		 */
+		private String myUrl = "";
+
+		public MyBrowser(Composite parent, int style) {
+			super(parent, style);
+		}
+
+		@Override
+		protected void checkSubclass() {
+
+		}
+
+		public boolean setUrl(String url) {
+			myUrl = url;
+			boolean r = true;
+			// 刷新页面，如果browser当前地址和setUrl相同，不会刷新，所以不能调用setUrl，只能调用刷新
+			if (StringUtils.equals(getUrl(), url)) {
+				logger.info("refresh");
+				super.refresh();
+			} else {
+				logger.info("setUrl");
+				r = super.setUrl(url);
+				logger.info("set url : {}", r);
+			}
+
+			return r;
+		}
+
+		public String getMyUrl() {
+			return myUrl;
+		}
+	}
+
+	public static void alertMsg(Shell shell, String msg) {
+		MessageBox alertBox = new MessageBox(shell);
+		alertBox.setMessage(msg);
+		alertBox.setText("信息");
+		alertBox.open();
 	}
 }

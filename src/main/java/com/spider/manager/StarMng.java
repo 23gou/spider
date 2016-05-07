@@ -19,15 +19,6 @@ public interface StarMng {
 	public Star getById(Long id);
 	/**
 	 * 
-	 * 描述:导入
-	 * 
-	 * @param fileName
-	 * @return
-	 * @author liyixing 2015年9月9日 上午10:19:36
-	 */
-	// public int importExcel(String fileName);
-	/**
-	 * 
 	 * 描述:添加
 	 * 
 	 * @param star
@@ -71,7 +62,7 @@ public interface StarMng {
 	 * @return
 	 * @author liyixing 2015年9月9日 下午5:57:11
 	 */
-	public List<Star> getAll();
+	public List<Star> getList(List<String> categoryIds);
 	
 	/**
 	 * 

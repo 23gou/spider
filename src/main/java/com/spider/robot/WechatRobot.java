@@ -3,6 +3,8 @@ package com.spider.robot;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.browser.Browser;
@@ -36,16 +38,22 @@ public class WechatRobot extends DefaultRobot {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(WechatRobot.class);
 
+	public WechatRobot() {
+		setName("微信");
+	}
+
 	@Override
-	public void grabData(final Task task, final Browser browser,
-			final Star star, final RobotResult robotResult,
-			final Iterator<Star> starIterator, final RobotListener robotListener) {
+	public void grabData(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
+			final RobotListener robotListener) {
 
 		// 处理微博关键字
 		final ProgressAdapter addWechatListener = new ProgressAdapter() {
 			public void completed(ProgressEvent event) {
 				browser.removeProgressListener(this);
-				parse(task, browser, star, robotResult, starIterator, robotListener);
+				parse(options, task, browser, star, robotResult, starIterator,
+						robotListener);
 			}
 		};
 
@@ -59,7 +67,8 @@ public class WechatRobot extends DefaultRobot {
 		}
 	}
 
-	public void parse(final Task task, final Browser browser, final Star star,
+	public void parse(Map<String, List<String>> options, final Task task,
+			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
 		// 解析微博名称
@@ -67,7 +76,12 @@ public class WechatRobot extends DefaultRobot {
 			public void run() {
 				String select = "totalItems (\\d{0,})";
 				String text = browser.getText();
-				// text.substring(text.indexOf("找到约") - 10);
+				
+				if(text.indexOf("用户您好，您的访问过于频繁，为确认本次访问为正常用户行为，需要您协助验证。") > 0) {
+					parse(options, task, browser, star, robotResult, starIterator, robotListener);
+					
+					return;
+				}
 				String number = PageParase.parseTextWithPatternHtml(text,
 						"找到约<resnum id=\"scd_num\">(\\S{0,})</resnum>条结果")
 						.replace(",", "");
@@ -89,26 +103,26 @@ public class WechatRobot extends DefaultRobot {
 								"return $('div.wx-rb').length + ''").toString();
 					}
 				} catch (Exception e) {
-					LOGGER.debug("明星{}解析微信文章数出错", e, text);
+					LOGGER.info("明星{}解析微信文章数出错", e, text);
 
 				}
 
 				if (StringUtils.isNotBlank(number)) {
 					robotResult.setWechatNumber(Integer.valueOf(number));
-					LOGGER.debug("明星{}解析出来的微信文章数是{}", star.getName(),
+					LOGGER.info("明星{}解析出来的微信文章数是{}", star.getName(),
 							robotResult.getWechatNumber());
 
-					next(task, browser, star, robotResult, starIterator,
-							robotListener);
+					next(options, task, browser, star, robotResult,
+							starIterator, robotListener);
 				} else {
 					LOGGER.info("明星{}解析出来的微信文章数是{}，微信页面是：{}", new Object[] {
 							star.getName(), "", text });
 					if (text.indexOf("很抱歉，您的电脑或所在的局域网络有异常的访问，此刻我们无法响应您的请求。") >= 0) {
 						LOGGER.info("很抱歉，您的电脑或所在的局域网络有异常的访问，此刻我们无法响应您的请求。，等待验证码处理");
-						parse(task, browser, star, robotResult, starIterator,
-								robotListener);
+						parse(options, task, browser, star, robotResult,
+								starIterator, robotListener);
 					} else {
-						grabData(task, browser, star, robotResult,
+						grabData(options, task, browser, star, robotResult,
 								starIterator, robotListener);
 						return;
 					}

@@ -2,6 +2,7 @@ package com.spider.dao.impl;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
 
@@ -119,9 +120,13 @@ public class StarDaoImpl extends JdbcTemplateBaseDao implements StarDao {
 	}
 
 	@Override
-	public List<Star> getAll() {
+	public List<Star> getList(List<String> categoryIds) {
 		SqlBuilder sqlBuilder = new SqlBuilder("select * from  Star where 1=1");
 
+		if(CollectionUtils.isNotEmpty(categoryIds)) {
+			sqlBuilder.append(" and categoryId in (" + categoryIds.toString().replace("[", "").replace("]", "") + ")");
+		}
+		
 		sqlBuilder.append(" order by id desc ");
 		return super.query(sqlBuilder);
 	}
