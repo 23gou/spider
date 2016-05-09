@@ -50,6 +50,12 @@ public class WeiboDataRobot extends DefaultRobot {
 		setName("微指数");
 	}
 
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getWeiboData() > 0;
+	}
+
 	@SuppressWarnings("unchecked")
 	private void parseValue(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,

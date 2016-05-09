@@ -49,6 +49,12 @@ public class BaiduNewsRobot extends DefaultRobot {
 		this.setName("百度新闻");
 	}
 
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getBaiduNews() > 0;
+	}
+	
 	@Override
 	public void grabData(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
@@ -67,9 +73,17 @@ public class BaiduNewsRobot extends DefaultRobot {
 					public void run() {
 						// 计算时间，一周范围，上周一到这周
 						String text = browser.getText();
-
-						if (text.indexOf("抱歉，没有找到与“<EM>|<em>" + star.getName()
-								+ "</EM>|<em>” 相关的新闻内容。") >= 0) {
+						LOGGER.info(text);
+						if (text.indexOf("抱歉，没有找到与“<em>" + star.getName()
+								+ "</em>” 相关的新闻内容。") >= 0) {
+							robotResult.setBaiduNews(0);
+							next(options, task, browser, star, robotResult,
+									starIterator, robotListener);
+							return;
+						}
+						
+						if (text.indexOf("抱歉，没有找到与“<EM>" + star.getName()
+								+ "</EM>” 相关的新闻内容。") >= 0) {
 							robotResult.setBaiduNews(0);
 							next(options, task, browser, star, robotResult,
 									starIterator, robotListener);

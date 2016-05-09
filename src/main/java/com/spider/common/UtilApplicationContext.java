@@ -24,6 +24,7 @@ public class UtilApplicationContext {
 		return (T) applicationContext.getBean(requiredType);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static final <T> T get(String name) {
 		return (T) applicationContext.getBean(name);
 	}

@@ -44,6 +44,12 @@ public class TiebaSignRobot extends DefaultRobot {
 		setName("贴吧签到");
 	}
 
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getTiebaSign() > 0;
+	}
+	
 	@Override
 	public void grabData(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,

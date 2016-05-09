@@ -195,7 +195,7 @@ public class SpiderView {
 		});
 
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
-		tabFolder.setBounds(0, 50, 1004, 672);
+		tabFolder.setBounds(0, 50, 1014, 672);
 
 		TabItem tabItem_2 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_2.setText("\u6293\u53D6");
@@ -206,11 +206,11 @@ public class SpiderView {
 
 		Label label = new Label(group_2, SWT.NONE);
 		label.setText("\u5BF9\u6BD4\u65F6\u95F4");
-		label.setBounds(10, 16, 61, 17);
+		label.setBounds(5, 16, 50, 17);
 
 		combo = new Combo(group_2, SWT.NONE);
 		combo.setToolTipText("");
-		combo.setBounds(65, 13, 224, 25);
+		combo.setBounds(60, 13, 224, 25);
 		combo.setText("\u6293\u53D6\u65F6\u95F4");
 
 		button = new Button(group_2, SWT.NONE);
@@ -265,7 +265,7 @@ public class SpiderView {
 			}
 		});
 		button.setText("\u5F00\u59CB");
-		button.setBounds(295, 11, 80, 27);
+		button.setBounds(290, 11, 50, 27);
 
 		initBrowser(group_2);
 		// browser.setUrl("about:config");
@@ -284,7 +284,7 @@ public class SpiderView {
 			}
 		});
 		button_4.setText("\u767B\u5F55\u5FAE\u535A");
-		button_4.setBounds(842, 11, 80, 27);
+		button_4.setBounds(824, 11, 80, 27);
 
 		button_6.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -299,7 +299,7 @@ public class SpiderView {
 			}
 		});
 		button_6.setText("\u767B\u5F55\u767E\u5EA6");
-		button_6.setBounds(756, 11, 80, 27);
+		button_6.setBounds(738, 11, 80, 27);
 
 		button_7 = new Button(group_2, SWT.NONE);
 		button_7.setVisible(false);
@@ -337,16 +337,16 @@ public class SpiderView {
 			}
 		});
 		button_7.setText("\u7EE7\u7EED");
-		button_7.setBounds(670, 11, 80, 27);
+		button_7.setBounds(629, 11, 50, 27);
 
 		combo_6 = new Combo(group_2, SWT.NONE);
 		combo_6.setToolTipText("");
-		combo_6.setBounds(440, 13, 224, 25);
+		combo_6.setBounds(399, 13, 224, 25);
 		combo_6.setText("\u6293\u53D6\u65F6\u95F4");
 		combo_6.select(0);
 
 		Label label_3 = new Label(group_2, SWT.NONE);
-		label_3.setBounds(381, 16, 53, 17);
+		label_3.setBounds(346, 16, 53, 17);
 		label_3.setText("\u7EE7\u7EED\u4EFB\u52A1");
 
 		button_11 = new Button(group_2, SWT.NONE);
@@ -371,8 +371,8 @@ public class SpiderView {
 				showTask();
 			}
 		});
-		button_11.setBounds(928, 11, 58, 27);
-		button_11.setText("\u6307\u6570");
+		button_11.setBounds(682, 11, 50, 27);
+		button_11.setText("\u8FFD\u52A0");
 
 		TabItem tabItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tabItem_1.setText("\u6293\u53D6\u67E5\u770B");

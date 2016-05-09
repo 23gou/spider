@@ -44,6 +44,14 @@ public class WeiboFansRobot extends DefaultRobot {
 		setName("微博粉丝增长");
 	}
 
+	/**
+	 */
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getWeiboFan() > 0;
+	}
+
 	@Override
 	public void grabData(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,

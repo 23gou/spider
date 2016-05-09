@@ -42,6 +42,12 @@ public class WechatRobot extends DefaultRobot {
 		setName("微信");
 	}
 
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getWechatNumber() > 0;
+	}
+	
 	@Override
 	public void grabData(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
@@ -71,8 +77,8 @@ public class WechatRobot extends DefaultRobot {
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
-		// 解析微博名称
-		Display.getDefault().timerExec((int) 1500, new Runnable() {
+		// 解析微信
+		Display.getDefault().timerExec((int) 2000, new Runnable() {
 			public void run() {
 				String select = "totalItems (\\d{0,})";
 				String text = browser.getText();

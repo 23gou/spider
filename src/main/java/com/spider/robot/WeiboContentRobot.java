@@ -52,6 +52,14 @@ public class WeiboContentRobot extends DefaultRobot {
 		setName("微博转评赞");
 	}
 
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return robotResult.getWeiboComment() > 0
+				&& robotResult.getWeiboForward() > 0
+				&& robotResult.getWeiboLinkStatus() > 0;
+	}
+
 	@Override
 	public void grabData(Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
@@ -138,7 +146,7 @@ public class WeiboContentRobot extends DefaultRobot {
 													+ "for(var i = 0;i<eitems.length;i++){"
 													+ "eitems[i].innerHTML='';"
 													+ "}"
-													//获取自己发的微博内容
+													// 获取自己发的微博内容
 													+ "var items = $_(document,'div','action-type','feed_list_item');"
 													+ "var r = '{\"data\":[';"
 													+ "for(var i = 0; i<items.length&&i<8;i++) {"

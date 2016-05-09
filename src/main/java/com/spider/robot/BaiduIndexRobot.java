@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
@@ -53,6 +54,12 @@ public class BaiduIndexRobot extends DefaultRobot {
 	public BaiduIndexRobot() {
 		baiduIndexRobot = this;
 		setName("百度指数");
+	}
+	
+	public boolean validateDimensionZero(Map<String, List<String>> options,
+			Task task, Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener) {
+		return StringUtils.isNotBlank(robotResult.getBaiduIndexImg());
 	}
 
 	@Override

@@ -33,6 +33,17 @@ public interface Robot {
 
 	/**
 	 * 
+	 * 描述:验证为0的数据，则进行重新抓取
+	 * 
+	 * @author liyixing 2016年5月9日 上午10:23:10
+	 * @return 
+	 */
+	public boolean validateZero(Map<String, List<String>> options, Task task,
+			Browser browser, Star star, RobotResult robotResult,
+			Iterator<Star> starIterator, RobotListener robotListener);
+
+	/**
+	 * 
 	 * 
 	 * 描述:抓取监听器
 	 *
