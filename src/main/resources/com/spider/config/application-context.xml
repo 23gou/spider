@@ -64,6 +64,13 @@
 	<!-- 事务声明方式是注解 -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
+
+	<bean id="noneRobot" class="com.spider.robot.NoneRobot">
+		<property name="next">
+			<ref bean="tiebaRobot" />
+		</property>
+		<property name="must" value="true"></property>
+	</bean>
 	<bean id="tiebaRobot" class="com.spider.robot.TiebaRobot">
 		<property name="next">
 			<ref bean="weiboContentRobot" />
@@ -75,7 +82,7 @@
 			<ref bean="weiboFansRobot" />
 		</property>
 	</bean>
-	
+
 	<bean id="weiboFansRobot" class="com.spider.robot.WeiboFansRobot">
 		<property name="next">
 			<ref bean="wechatRobot" />
@@ -111,10 +118,10 @@
 			<ref bean="defaultRobot" />
 		</property>
 	</bean>
-	
+
 	<bean id="defaultRobot" class="com.spider.robot.DefaultRobot">
 		<property name="next">
-			<ref bean="tiebaRobot" />
+			<ref bean="noneRobot" />
 		</property>
 		<property name="must" value="true"></property>
 	</bean>

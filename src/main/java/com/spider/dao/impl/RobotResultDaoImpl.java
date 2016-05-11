@@ -110,6 +110,67 @@ public class RobotResultDaoImpl extends JdbcTemplateBaseDao implements
 		if (robotResult.getBaiduIndexImg() != null) {
 			sqlBuilder.set("baiduIndexImg", robotResult.getBaiduIndexImg());
 		}
+		
+		if (robotResult.getBaiduNews()!=null) {
+			sqlBuilder.set("baiduNews", robotResult.getBaiduNews());
+		}
+		
+		if (robotResult.getCategoryId()!=null) {
+			sqlBuilder.set("categoryId", robotResult.getCategoryId());
+		}
+		
+		if (robotResult.getScore()!=null) {
+			sqlBuilder.set("score", robotResult.getScore());
+		}
+		
+		if (robotResult.getTiebaMemberNum()!=null) {
+			sqlBuilder.set("tiebaMemberNum", robotResult.getTiebaMemberNum());
+		}
+		
+		if (robotResult.getTiebaMemberNumInc()!=null) {
+			sqlBuilder.set("tiebaMemberNumInc", robotResult.getTiebaMemberNumInc());
+		}
+		
+		if (robotResult.getTiebaPostNum()!=null) {
+			sqlBuilder.set("tiebaPostNum", robotResult.getTiebaPostNum());
+		}
+		
+		if (robotResult.getTiebaPostNumInc()!=null) {
+			sqlBuilder.set("tiebaPostNumInc", robotResult.getTiebaPostNumInc());
+		}
+		
+		if (robotResult.getTiebaSign()!=null) {
+			sqlBuilder.set("tiebaSign", robotResult.getTiebaSign());
+		}
+		
+		if (robotResult.getWechatNumber()!=null) {
+			sqlBuilder.set("wechatNumber", robotResult.getWechatNumber());
+		}
+		
+		if (robotResult.getWeiboComment()!=null) {
+			sqlBuilder.set("weiboComment", robotResult.getWeiboComment());
+		}
+		
+		if (robotResult.getWeiboData()!=null) {
+			sqlBuilder.set("weiboData", robotResult.getWeiboData());
+		}
+		
+		if (robotResult.getWeiboFan()!=null) {
+			sqlBuilder.set("weiboFan", robotResult.getWeiboFan());
+		}
+		
+		if (robotResult.getWeiboFanInc()!=null) {
+			sqlBuilder.set("weiboFanInc", robotResult.getWeiboFanInc());
+		}
+		
+		if (robotResult.getWeiboForward()!=null) {
+			sqlBuilder.set("weiboForward", robotResult.getWeiboForward());
+		}
+		
+		if (robotResult.getWeiboLinkStatus()!=null) {
+			sqlBuilder.set("weiboLinkStatus", robotResult.getWeiboLinkStatus());
+		}
+		
 		super.update(robotResult.getId(), sqlBuilder);
 	}
 

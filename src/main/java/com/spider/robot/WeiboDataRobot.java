@@ -64,13 +64,6 @@ public class WeiboDataRobot extends DefaultRobot {
 			String text) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			// String vs = PageParase.parseTextWithPatternHtml(text,
-			// "<BODY>([\\s\\S]{0,})</BODY>");
-
-			// if (StringUtils.isBlank(vs)) {
-			// vs = PageParase.parseTextWithPatternHtml(text,
-			// "<body>([\\s\\S]{0,})</body>");
-			// }
 			String vs = text;
 			Map<String, Object> result = objectMapper.readValue(vs, Map.class);
 			int allData = 0;
@@ -87,7 +80,7 @@ public class WeiboDataRobot extends DefaultRobot {
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.info("明星{}的微博指数出错，重新开始", star.getName(), allData);
+				LOGGER.info("明星{}的微博指数出错，重新开始", star.getName());
 				browser.addProgressListener(my);
 				browser.refresh();
 			}
@@ -97,7 +90,9 @@ public class WeiboDataRobot extends DefaultRobot {
 			next(options, task, browser, star, robotResult, starIterator,
 					robotListener);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			LOGGER.info("明星{}的微博指数出错，重新开始", star.getName());
+			grabData(options, task, browser, star, robotResult, starIterator, robotListener);
+			return;
 		}
 	}
 

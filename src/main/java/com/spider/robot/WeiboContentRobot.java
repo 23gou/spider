@@ -95,7 +95,7 @@ public class WeiboContentRobot extends DefaultRobot {
 					final Iterator<Star> starIterator,
 					final RobotListener robotListener) {
 
-				Display.getDefault().timerExec((int) 1000, new Runnable() {
+				Display.getDefault().timerExec((int) 2000, new Runnable() {
 					@SuppressWarnings("unchecked")
 					public void run() {
 						String text = browser.getText();
@@ -124,14 +124,12 @@ public class WeiboContentRobot extends DefaultRobot {
 
 						if (text.indexOf("他还没有发过微博") > 0
 								|| text.indexOf("她还没有发过微博") > 0) {
-							LOGGER.info("明星{}没有发过微博", star.getName());
+							LOGGER.info("明星{}没有发过微博，需要重新抓取", star.getName());
 
 							robotResult.setWeiboComment(0);
-							robotResult.setWeiboFan(0);
-							robotResult.setWeiboFanInc(0);
 							robotResult.setWeiboForward(0);
 							robotResult.setWeiboLinkStatus(0);
-							next(options, task, browser, star, robotResult,
+							grabData(options, task, browser, star, robotResult,
 									starIterator, robotListener);
 							return;
 						}
@@ -199,16 +197,9 @@ public class WeiboContentRobot extends DefaultRobot {
 							return;
 						}
 
-						if (StringUtils.isNotBlank(weiboName)) {
-							parseArticle(star, robotResult, text, rvs, browser);
-							next(options, task, browser, star, robotResult,
-									starIterator, robotListener);
-						} else {
-							LOGGER.info("明星{}解析出来的微博名称为空{}", star.getName(),
-									weiboName);
-							next(options, task, browser, star, robotResult,
-									starIterator, robotListener);
-						}
+						parseArticle(star, robotResult, text, rvs, browser);
+						next(options, task, browser, star, robotResult,
+								starIterator, robotListener);
 					}
 
 					/**
@@ -268,8 +259,6 @@ public class WeiboContentRobot extends DefaultRobot {
 			LOGGER.info("明星{}微博地址无效", star.getName());
 
 			robotResult.setWeiboComment(0);
-			robotResult.setWeiboFan(0);
-			robotResult.setWeiboFanInc(0);
 			robotResult.setWeiboForward(0);
 			robotResult.setWeiboLinkStatus(0);
 			next(options, task, browser, star, robotResult, starIterator,
@@ -280,8 +269,6 @@ public class WeiboContentRobot extends DefaultRobot {
 		if ("#".equals(star.getWeiboUrl().trim())) {
 			LOGGER.info("明星{}微博地址无效，是#", star.getName());
 			robotResult.setWeiboComment(0);
-			robotResult.setWeiboFan(0);
-			robotResult.setWeiboFanInc(0);
 			robotResult.setWeiboForward(0);
 			robotResult.setWeiboLinkStatus(0);
 			next(options, task, browser, star, robotResult, starIterator,
@@ -383,6 +370,30 @@ public class WeiboContentRobot extends DefaultRobot {
 			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 				Date date1 = null;
 				Date date2 = null;
+				
+				try {
+					date1 = UtilDateTime.parse(
+							o1.get("date").toString().trim(), "ss秒前");
+					Calendar datec1 = UtilDateTime.getCalendar(date1);
+					datec1.set(Calendar.YEAR,
+							Calendar.getInstance().get(Calendar.YEAR));
+					datec1.set(Calendar.MONTH,
+							Calendar.getInstance().get(Calendar.MONTH));
+					datec1.set(Calendar.DAY_OF_MONTH, Calendar.getInstance()
+							.get(Calendar.DAY_OF_MONTH));
+					datec1.set(Calendar.HOUR_OF_DAY, Calendar.getInstance()
+							.get(Calendar.HOUR_OF_DAY));
+					datec1.set(Calendar.MINUTE,
+							Calendar.getInstance().get(Calendar.MINUTE));
+					// N秒前
+					datec1.set(Calendar.SECOND,
+							Calendar.getInstance().get(Calendar.SECOND)
+									- datec1.get(Calendar.SECOND));
+					date1 = datec1.getTime();
+				} catch (ParseException e) {
+					LOGGER.info("格式ss秒钟前失败，{}", o1.get("date").toString()
+							.trim());
+				}
 
 				try {
 					date1 = UtilDateTime.parse(
@@ -403,6 +414,30 @@ public class WeiboContentRobot extends DefaultRobot {
 					date1 = datec1.getTime();
 				} catch (ParseException e) {
 					LOGGER.info("格式mm分钟前失败，{}", o1.get("date").toString()
+							.trim());
+				}
+				
+				try {
+					date2 = UtilDateTime.parse(
+							o2.get("date").toString().trim(), "ss秒前");
+					Calendar datec2 = UtilDateTime.getCalendar(date2);
+					datec2.set(Calendar.YEAR,
+							Calendar.getInstance().get(Calendar.YEAR));
+					datec2.set(Calendar.MONTH,
+							Calendar.getInstance().get(Calendar.MONTH));
+					datec2.set(Calendar.DAY_OF_MONTH, Calendar.getInstance()
+							.get(Calendar.DAY_OF_MONTH));
+					datec2.set(Calendar.HOUR_OF_DAY, Calendar.getInstance()
+							.get(Calendar.HOUR_OF_DAY));
+					datec2.set(Calendar.MINUTE,
+							Calendar.getInstance().get(Calendar.MINUTE));
+					// N秒前
+					datec2.set(Calendar.SECOND,
+							Calendar.getInstance().get(Calendar.SECOND)
+									- datec2.get(Calendar.SECOND));
+					date2 = datec2.getTime();
+				} catch (ParseException e) {
+					LOGGER.info("格式ss秒钟前失败，{}", o2.get("date").toString()
 							.trim());
 				}
 

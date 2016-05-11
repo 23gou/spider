@@ -26,6 +26,10 @@ public class TaskOption extends BaseTaskOption {
 	}
 
 	public enum TaskOptionType {
-		维度, 分类
+		维度, 分类, 当前明星
+	}
+
+	public enum TaskOptionStatus {
+		未完成, 已完成
 	}
 }

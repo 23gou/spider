@@ -22,7 +22,7 @@ public interface TaskOptionMng {
 	 * @param star
 	 * @author liyixing 2015年9月9日 上午10:16:13
 	 */
-	public TaskOption add(String name, String value);
+	public TaskOption add(Long taskId, String name, String value);
 
 	/**
 	 * 
@@ -42,7 +42,11 @@ public interface TaskOptionMng {
 	 * @return
 	 * @author liyixing 2016年5月5日 下午4:25:45
 	 */
-	public List<TaskOption> getByTaskAndName(Long taskId, String name);
-	
-	public Map<String,List<String>> getMapByTaskAndName(Long taskId, String name);
+	public List<TaskOption> getByTaskAndName(Long taskId, String name,
+			String status);
+
+	public Map<String, List<String>> getMapByTaskAndName(Long taskId,
+			String name, String status);
+
+	public void update(Long id, String status,String value);
 }

@@ -30,6 +30,11 @@ public class BaseTaskOption extends BaseEntity {
 	 * 任务
 	 */
 	private Long taskId;
+	
+	/**
+	 * 状态
+	 */
+	private String status;
 
 	public String getName() {
 		return name;
@@ -53,5 +58,13 @@ public class BaseTaskOption extends BaseEntity {
 
 	public void setTaskId(Long taskId) {
 		this.taskId = taskId;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

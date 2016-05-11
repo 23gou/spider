@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spider.entity.RobotResult;
 import com.spider.entity.Star;
 import com.spider.entity.Task;
@@ -88,7 +87,6 @@ public class WeiboFansRobot extends DefaultRobot {
 					final RobotListener robotListener) {
 
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
-					@SuppressWarnings("unchecked")
 					public void run() {
 						String text = browser.getText();
 						LOGGER.info("parse:" + text);
@@ -116,89 +114,18 @@ public class WeiboFansRobot extends DefaultRobot {
 
 						if (text.indexOf("他还没有发过微博") > 0
 								|| text.indexOf("她还没有发过微博") > 0) {
-							LOGGER.info("明星{}没有发过微博", star.getName());
+							LOGGER.info("明星{}没有发过微博，需要重新抓取", star.getName());
 
-							robotResult.setWeiboComment(0);
 							robotResult.setWeiboFan(0);
 							robotResult.setWeiboFanInc(0);
-							robotResult.setWeiboForward(0);
-							robotResult.setWeiboLinkStatus(0);
-							next(options, task, browser, star, robotResult,
+							grabData(options, task, browser, star, robotResult,
 									starIterator, robotListener);
 							return;
 						}
 
-						List<Map<String, Object>> rvs = null;
-						try {
-							String vs = browser
-									.evaluate(
-											"var $_=function (p,e,a,av){var es = [];var esi = 0;var divs = p.getElementsByTagName(e); for(var i = 0; i < divs.length; i++){var div = divs[i]; if(div.getAttribute(a)==av){es[esi++]=div;}}return es};"
-													+ "var eitems = $_(document,'div','class','WB_feed_expand');"
-													+ "for(var i = 0;i<eitems.length;i++){"
-													+ "eitems[i].innerHTML='';"
-													+ "}"
-													+ "var items = $_(document,'div','action-type','feed_list_item');"
-													+ "var r = '{\"data\":[';"
-													+ "for(var i = 0; i<items.length&&i<8;i++) {"
-													+ "var date = $_(items[i],'a','node-type','feed_list_item_date');"
-													+ "var feed_list_options = $_(items[i],'div','node-type','feed_list_options')[0];"
-													+ "var forward = $_(feed_list_options,'span','node-type','forward_btn_text');"
-													+ "var comment = $_(feed_list_options,'span','node-type','comment_btn_text');"
-													+ "var like = $_(feed_list_options,'span','node-type','like_status')[0].getElementsByTagName('em');"
-													+ "if(i!==0) {"
-													+ "	r=r+',';"
-													+ "}"
-													+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[0].innerHTML+'\"'+'}'"
-													+ "}"
-													+ "r=r+']}';"
-													+ "return r;").toString();
-							vs = vs.replace("class=\"W_ficon ficon_forward",
-									"class='W_ficon ficon_forward").replace(
-									"class=\"W_ficon ficon_repeat",
-									"class='W_ficon ficon_repeat");
-							vs = vs.replace("S_ficon\"", "S_ficon'");
-							ObjectMapper objectMapper = new ObjectMapper();
-
-							Map<String, Object> r = objectMapper.readValue(vs,
-									Map.class);
-							rvs = (List<Map<String, Object>>) r.get("data");
-
-							if (rvs.size() == 0 && text.indexOf("他还没有发过微博") < 0) {
-								parse(options, task, browser, star,
-										robotResult, starIterator,
-										robotListener);
-								LOGGER.info("无法解析出明星微博数据，重新解析");
-								return;
-							}
-
-							if (rvs.size() == 0 && text.indexOf("她还没有发过微博") < 0) {
-								parse(options, task, browser, star,
-										robotResult, starIterator,
-										robotListener);
-								LOGGER.info("无法解析出明星微博数据，重新解析");
-								return;
-							}
-
-							LOGGER.info("明星{}js解析微博信息出来的微博数是：{}", new Object[] {
-									star.getName(), rvs.size() });
-						} catch (Exception e) {
-							// 解析微博数据出错
-							LOGGER.info("解析微博数据出错，重新开始解析", e);
-							parse(options, task, browser, star, robotResult,
-									starIterator, robotListener);
-							return;
-						}
-
-						if (StringUtils.isNotBlank(weiboName)) {
-							parseWeiboFan(task, star, robotResult, text);
-							next(options, task, browser, star, robotResult,
-									starIterator, robotListener);
-						} else {
-							LOGGER.info("明星{}解析出来的微博名称为空{}", star.getName(),
-									weiboName);
-							next(options, task, browser, star, robotResult,
-									starIterator, robotListener);
-						}
+						parseWeiboFan(task, star, robotResult, text);
+						next(options, task, browser, star, robotResult,
+								starIterator, robotListener);
 					}
 
 					/**
@@ -257,11 +184,8 @@ public class WeiboFansRobot extends DefaultRobot {
 		if (org.apache.commons.lang3.StringUtils.isBlank(star.getWeiboUrl())) {
 			LOGGER.info("明星{}微博地址无效", star.getName());
 
-			robotResult.setWeiboComment(0);
 			robotResult.setWeiboFan(0);
 			robotResult.setWeiboFanInc(0);
-			robotResult.setWeiboForward(0);
-			robotResult.setWeiboLinkStatus(0);
 			next(options, task, browser, star, robotResult, starIterator,
 					robotListener);
 			return;
@@ -269,11 +193,8 @@ public class WeiboFansRobot extends DefaultRobot {
 
 		if ("#".equals(star.getWeiboUrl().trim())) {
 			LOGGER.info("明星{}微博地址无效，是#", star.getName());
-			robotResult.setWeiboComment(0);
 			robotResult.setWeiboFan(0);
 			robotResult.setWeiboFanInc(0);
-			robotResult.setWeiboForward(0);
-			robotResult.setWeiboLinkStatus(0);
 			next(options, task, browser, star, robotResult, starIterator,
 					robotListener);
 			return;

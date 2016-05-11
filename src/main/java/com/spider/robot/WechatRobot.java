@@ -78,11 +78,18 @@ public class WechatRobot extends DefaultRobot {
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
 		// 解析微信
-		Display.getDefault().timerExec((int) 2000, new Runnable() {
+		Display.getDefault().timerExec((int) 3000, new Runnable() {
 			public void run() {
 				String select = "totalItems (\\d{0,})";
 				String text = browser.getText();
 				
+				if(text.indexOf("没有找到相关的微信公众号文章。")>0) {
+					LOGGER.info("明星{}没有找到相关的微信公众号文章。", star.getName());
+					robotResult.setWechatNumber(0);
+					next(options, task, browser, star, robotResult,
+							starIterator, robotListener);
+					return;
+				}
 				if(text.indexOf("用户您好，您的访问过于频繁，为确认本次访问为正常用户行为，需要您协助验证。") > 0) {
 					parse(options, task, browser, star, robotResult, starIterator, robotListener);
 					

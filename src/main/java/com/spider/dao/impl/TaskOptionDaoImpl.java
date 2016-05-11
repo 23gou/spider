@@ -39,17 +39,38 @@ public class TaskOptionDaoImpl extends JdbcTemplateBaseDao implements
 	}
 
 	@Override
-	public List<TaskOption> getByTaskAndName(Long taskId, String name) {
-		SqlBuilder sqlBuilder = new SqlBuilder(" select * from TaskOption where 1=1");
-		
-		if(taskId != null) {
+	public List<TaskOption> getByTaskAndName(Long taskId, String name,
+			String status) {
+		SqlBuilder sqlBuilder = new SqlBuilder(
+				" select * from TaskOption where 1=1");
+
+		if (taskId != null) {
 			sqlBuilder.andEqualTo("taskId", taskId);
 		}
-		
-		if(StringUtils.isNotBlank(name)) {
+
+		if (StringUtils.isNotBlank(name)) {
 			sqlBuilder.andEqualTo("name", name);
 		}
-		
+
+		if (StringUtils.isNotBlank(status)) {
+			sqlBuilder.andEqualTo("status", status);
+		}
+
 		return super.query(sqlBuilder);
+	}
+
+	@Override
+	public void update(Long id, String status,String value) {
+		SqlBuilder sqlBuilder = new SqlBuilder(
+				"update TaskOption set gmtModify=current_timestamp()");
+		if (StringUtils.isNotBlank(status)) {
+			sqlBuilder.set("status", status);
+		}
+		
+		if (StringUtils.isNotBlank(value)) {
+			sqlBuilder.set("value", value);
+		}
+		
+		super.update(id, sqlBuilder);
 	}
 }

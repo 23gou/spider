@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.spider.common.UtilApplicationContext;
 import com.spider.entity.Category;
+import com.spider.entity.TaskOption.TaskOptionType;
 import com.spider.manager.CategoryMng;
 
 /**
@@ -124,7 +125,7 @@ public class TaskOptionDialog extends Dialog {
 		weiboData.setText("\u5FAE\u6307\u6570");
 		weiboData.setBounds(308, 23, 80, 17);
 		checkDimensions.add(weiboData);
-		
+
 		Button weiboFans = new Button(groupDimension, SWT.CHECK);
 		weiboFans.setSelection(true);
 		weiboFans.setText("\u5FAE\u535A\u7C89\u4E1D\u589E\u957F");
@@ -140,8 +141,56 @@ public class TaskOptionDialog extends Dialog {
 				shell.dispose();
 			}
 		});
-		button_1.setBounds(10, 338, 80, 27);
+		button_1.setBounds(5, 338, 60, 27);
 		button_1.setText("\u786E\u5B9A\u5F00\u59CB");
+		
+		Button btnNewButton = new Button(shell, SWT.NONE);
+		btnNewButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(Button button : checkCategories) {
+					button.setSelection(true);
+				}
+			}
+		});
+		btnNewButton.setBounds(70, 338, 60, 27);
+		btnNewButton.setText("\u5168\u9009\u5206\u7C7B");
+		
+		Button btnNewButton_1 = new Button(shell, SWT.NONE);
+		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(Button button : checkDimensions) {
+					button.setSelection(true);
+				}
+			}
+		});
+		btnNewButton_1.setBounds(135, 338, 60, 27);
+		btnNewButton_1.setText("\u5168\u9009\u7EF4\u5EA6");
+		
+		Button button = new Button(shell, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(Button button : checkCategories) {
+					button.setSelection(false);
+				}
+			}
+		});
+		button.setText("\u53D6\u6D88\u5206\u7C7B");
+		button.setBounds(200, 338, 60, 27);
+		
+		Button button_2 = new Button(shell, SWT.NONE);
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(Button button : checkDimensions) {
+					button.setSelection(false);
+				}
+			}
+		});
+		button_2.setText("\u53D6\u6D88\u7EF4\u5EA6");
+		button_2.setBounds(265, 338, 60, 27);
 
 		showCategory();
 	}
@@ -193,7 +242,7 @@ public class TaskOptionDialog extends Dialog {
 				dimensions.add(button.getText());
 			}
 		}
-		
+
 		List<String> categories = new ArrayList<String>();
 
 		for (Button button : checkCategories) {
@@ -201,8 +250,8 @@ public class TaskOptionDialog extends Dialog {
 				categories.add((String) button.getData());
 			}
 		}
-		
-		result.put("分类", categories);
-		result.put("维度", dimensions);
+
+		result.put(TaskOptionType.分类.toString(), categories);
+		result.put(TaskOptionType.维度.toString(), dimensions);
 	}
 }

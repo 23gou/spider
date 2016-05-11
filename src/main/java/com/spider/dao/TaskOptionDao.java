@@ -41,5 +41,7 @@ public interface TaskOptionDao {
 	 * @return
 	 * @author liyixing 2016年5月5日 下午4:25:45
 	 */
-	public List<TaskOption> getByTaskAndName(Long taskId, String name);
+	public List<TaskOption> getByTaskAndName(Long taskId, String name,String status);
+	
+	public void update(Long id, String status,String value);
 }

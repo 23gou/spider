@@ -66,9 +66,4 @@ public class StarMngImpl implements StarMng {
 	public List<Star> getList(List<String> categoryIds) {
 		return starDao.getList(categoryIds);
 	}
-
-	@Override
-	public List<Star> selectNotBaiduIndexRobot(RobotResult robotResult) {
-		return starDao.selectNotBaiduIndexRobot(robotResult);
-	}
 }

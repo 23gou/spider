@@ -12,6 +12,8 @@ import com.common.jdbc.page.Pagination;
 import com.spider.dao.StarDao;
 import com.spider.entity.RobotResult;
 import com.spider.entity.Star;
+import com.spider.entity.TaskOption.TaskOptionStatus;
+import com.spider.entity.TaskOption.TaskOptionType;
 
 /**
  * 
@@ -62,6 +64,9 @@ public class StarDaoImpl extends JdbcTemplateBaseDao implements StarDao {
 		if (StringUtils.isNotBlank(star.getWeiboName())) {
 			sqlBuilder.set("weiboName", star.getWeiboName());
 		}
+		if (star.getCategoryId() != null) {
+			sqlBuilder.set("categoryId", star.getCategoryId());
+		}
 		super.update(star.getId(), sqlBuilder);
 	}
 
@@ -87,13 +92,16 @@ public class StarDaoImpl extends JdbcTemplateBaseDao implements StarDao {
 
 	@Override
 	public List<Star> selectNotRobot(RobotResult robotResult) {
-		SqlBuilder sqlBuilder = new SqlBuilder("SELECT star.* FROM star "
-				+ "LEFT JOIN robotresult "
-				+ "ON robotresult.starId = star.id AND robotresult.taskId = "
-				+ robotResult.getTaskId() + " "
-				+ "WHERE robotresult.id IS NULL");
+		SqlBuilder sqlBuilder = new SqlBuilder(
+				"SELECT star.* FROM star "
+						// 该任务的分类
+						+ "WHERE star.categoryId in(SELECT o.value FROM taskoption o WHERE o.name=? and o.status = ? AND o.taskId = ?)"
+						+ " AND star.id < (SELECT o.value FROM taskoption o WHERE o.name=?  AND o.taskId = ?)");
 
 		sqlBuilder.append(" order by  star.id desc");
+		sqlBuilder.setParams(TaskOptionType.分类.toString(),
+				TaskOptionStatus.未完成.toString(), robotResult.getTaskId(),
+				TaskOptionType.当前明星.toString(), robotResult.getTaskId());
 
 		return query(sqlBuilder);
 	}
@@ -115,7 +123,7 @@ public class StarDaoImpl extends JdbcTemplateBaseDao implements StarDao {
 			sqlBuilder.andEqualTo("categoryId", star.getCategoryId());
 		}
 
-		sqlBuilder.append(" order by  id asc");
+		sqlBuilder.append(" order by  id desc");
 		return queryForObject(sqlBuilder);
 	}
 
@@ -123,24 +131,13 @@ public class StarDaoImpl extends JdbcTemplateBaseDao implements StarDao {
 	public List<Star> getList(List<String> categoryIds) {
 		SqlBuilder sqlBuilder = new SqlBuilder("select * from  Star where 1=1");
 
-		if(CollectionUtils.isNotEmpty(categoryIds)) {
-			sqlBuilder.append(" and categoryId in (" + categoryIds.toString().replace("[", "").replace("]", "") + ")");
+		if (CollectionUtils.isNotEmpty(categoryIds)) {
+			sqlBuilder.append(" and categoryId in ("
+					+ categoryIds.toString().replace("[", "").replace("]", "")
+					+ ")");
 		}
-		
+
 		sqlBuilder.append(" order by id desc ");
 		return super.query(sqlBuilder);
-	}
-
-	@Override
-	public List<Star> selectNotBaiduIndexRobot(RobotResult robotResult) {
-		SqlBuilder sqlBuilder = new SqlBuilder("SELECT star.* FROM star "
-				+ "INNER JOIN robotresult "
-				+ "ON robotresult.starId = star.id AND robotresult.taskId = "
-				+ robotResult.getTaskId() + " "
-				+ "WHERE robotresult.baiduIndexImg IS NULL");
-
-		sqlBuilder.append(" order by  star.id desc");
-
-		return query(sqlBuilder);
 	}
 }

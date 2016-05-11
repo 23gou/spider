@@ -18,8 +18,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.browser.ProgressEvent;
-import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -32,7 +30,6 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -65,6 +62,9 @@ import com.spider.entity.Star;
 import com.spider.entity.Task;
 import com.spider.entity.Task.TaskStatus;
 import com.spider.entity.Task.TaskType;
+import com.spider.entity.TaskOption;
+import com.spider.entity.TaskOption.TaskOptionStatus;
+import com.spider.entity.TaskOption.TaskOptionType;
 import com.spider.manager.CategoryMng;
 import com.spider.manager.RobotResultMng;
 import com.spider.manager.StarMng;
@@ -116,7 +116,7 @@ public class SpiderView {
 	private Group robotResultEdit;
 	private Combo combo_6;
 	private Button button_11;
-	private MyBrowser browser;
+	private MyBrowser mybrowser;
 	private Text text_6;
 	private boolean baiduLogin = false;
 	private boolean weiboLogin = false;
@@ -127,8 +127,6 @@ public class SpiderView {
 	private static SpiderView window;
 	private static CategoryMng categoryMng;
 	private static TaskOptionMng taskOptionMng;
-	private Date last = new Date();
-	private boolean start = false;
 	/**
 	 * 明星表格分页
 	 */
@@ -151,7 +149,7 @@ public class SpiderView {
 			com.spider.common.UtilApplicationContext.load();
 			categoryMng = UtilApplicationContext.get(CategoryMng.class);
 			starMng = UtilApplicationContext.get(StarMng.class);
-			robot = UtilApplicationContext.get("tiebaRobot");
+			robot = UtilApplicationContext.get("noneRobot");
 			taskMng = UtilApplicationContext.get(TaskMng.class);
 			robotResultMng = UtilApplicationContext.get(RobotResultMng.class);
 			taskOptionMng = UtilApplicationContext.get(TaskOptionMng.class);
@@ -233,19 +231,10 @@ public class SpiderView {
 						.open();
 
 				if (MapUtils.isNotEmpty(result)
-						&& CollectionUtils.isNotEmpty(result.get("分类"))
-						&& CollectionUtils.isNotEmpty(result.get("维度"))) {
-					// 保存每个选项
-					List<String> categories = result.get("分类");
-					List<String> dimensions = result.get("维度");
-
-					for (String category : categories) {
-						taskOptionMng.add("分类", category);
-					}
-
-					for (String dimension : dimensions) {
-						taskOptionMng.add("维度", dimension);
-					}
+						&& CollectionUtils.isNotEmpty(result
+								.get(TaskOptionType.分类.toString()))
+						&& CollectionUtils.isNotEmpty(result
+								.get(TaskOptionType.维度.toString()))) {
 					// 对比时间
 					Task ctask = getSelectTask(combo);
 					Task task = new Task();
@@ -257,10 +246,34 @@ public class SpiderView {
 					task.setTaskStatus(TaskStatus.未完成.toString());
 					task.setType(TaskType.抓取.toString());
 					taskMng.add(task);
+
+					// 保存每个选项
+					List<String> categories = result.get(TaskOptionType.分类
+							.toString());
+					List<String> dimensions = result.get(TaskOptionType.维度
+							.toString());
+
+					for (String category : categories) {
+						taskOptionMng.add(task.getId(),
+								TaskOptionType.分类.toString(), category);
+					}
+
+					for (String dimension : dimensions) {
+						taskOptionMng.add(task.getId(),
+								TaskOptionType.维度.toString(), dimension);
+					}
+
+					taskOptionMng.add(task.getId(),
+							TaskOptionType.当前明星.toString(), Integer.MAX_VALUE
+									+ "");
+
 					List<Star> stars = starMng.getList(categories);
 
 					showTask();
 					grab(result, task, stars);
+				} else {
+					errorMessage("请选择要抓取的维度和分类");
+					alertMsg(shell,"请选择要抓取的维度和分类");
 				}
 			}
 		});
@@ -275,7 +288,7 @@ public class SpiderView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				weiboLogin = true;
-				browser.setUrl("http://weibo.com/");
+				mybrowser.setUrl("http://weibo.com/");
 				if (baiduLogin) {
 					button.setVisible(true);
 					button_7.setVisible(true);
@@ -290,7 +303,7 @@ public class SpiderView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				baiduLogin = true;
-				browser.setUrl("http://index.baidu.com");
+				mybrowser.setUrl("http://index.baidu.com");
 				if (weiboLogin) {
 					button.setVisible(true);
 					button_7.setVisible(true);
@@ -322,18 +335,14 @@ public class SpiderView {
 					return;
 				}
 
-				// if (!UtilImage.getInstance().isSelect) {
-				// errorMessage("请选择百度指数需要截图的范围");
-				// browser.setUrl("http://index.baidu.com/?tpl=trend&word=%B2%E2%CA%D4");
-				// return;
-				// }
-
 				// 开始执行
 				RobotResult robotResult = new RobotResult();
 
 				robotResult.setTaskId(task.getId());
 				List<Star> stars = starMng.getNotRobot(robotResult);
 				showTask();
+				grab(taskOptionMng.getMapByTaskAndName(robotResult.getTaskId(),
+						null, TaskOptionStatus.未完成.toString()), task, stars);
 			}
 		});
 		button_7.setText("\u7EE7\u7EED");
@@ -358,17 +367,68 @@ public class SpiderView {
 				Task task = getSelectTask(combo_6);
 
 				if (task == null) {
-					errorMessage("请选择需要继续抓取百度指数的任务");
+					errorMessage("请选择要追加的任务");
+					alertMsg(shell, "请选择要追加的任务");
 					return;
 				}
 
-				// 开始执行
-				RobotResult robotResult = new RobotResult();
+				if (task.getTaskStatus().equals(TaskStatus.未完成.toString())) {
+					errorMessage("该任务还未完成，无法追加");
+					alertMsg(shell, "该任务还未完成，无法追加");
+					return;
+				}
 
-				robotResult.setTaskId(task.getId());
-				List<Star> stars = starMng
-						.selectNotBaiduIndexRobot(robotResult);
-				showTask();
+				TaskOptionDialog taskOptionDialog = new TaskOptionDialog(shell,
+						SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+				@SuppressWarnings("unchecked")
+				Map<String, List<String>> result = (Map<String, List<String>>) taskOptionDialog
+						.open();
+
+				if (MapUtils.isNotEmpty(result)
+						&& CollectionUtils.isNotEmpty(result
+								.get(TaskOptionType.分类.toString()))
+						&& CollectionUtils.isNotEmpty(result
+								.get(TaskOptionType.维度.toString()))) {
+					// 保存每个选项
+					List<String> categories = result.get(TaskOptionType.分类
+							.toString());
+					List<String> dimensions = result.get(TaskOptionType.维度
+							.toString());
+
+					for (String category : categories) {
+						taskOptionMng.add(task.getId(),
+								TaskOptionType.分类.toString(), category);
+					}
+
+					for (String dimension : dimensions) {
+						taskOptionMng.add(task.getId(),
+								TaskOptionType.维度.toString(), dimension);
+					}
+
+					List<TaskOption> currentStarOption = taskOptionMng
+							.getByTaskAndName(task.getId(),
+									TaskOptionType.当前明星.toString(), null);
+
+					if (CollectionUtils.isEmpty(currentStarOption)) {
+						taskOptionMng.add(task.getId(),
+								TaskOptionType.当前明星.toString(),
+								Integer.MAX_VALUE + "");
+					} else {
+						taskOptionMng.update(currentStarOption.get(0).getId(),
+								null, Integer.MAX_VALUE + "");
+					}
+
+					// 开始执行
+					// 任务状态改成未完成
+					task.setTaskStatus(TaskStatus.未完成.toString());
+					taskMng.save(task);
+					RobotResult robotResult = new RobotResult();
+
+					robotResult.setTaskId(task.getId());
+					List<Star> stars = starMng.getList(categories);
+					showTask();
+					grab(result, task, stars);
+				}
 			}
 		});
 		button_11.setBounds(682, 11, 50, 27);
@@ -928,26 +988,15 @@ public class SpiderView {
 	private void initBrowser(Group group_2) {
 		if ("IE".equals(System.getProperty("browser"))) {
 			logger.info("IE");
-			browser = new MyBrowser(group_2, SWT.NONE);
+			mybrowser = new MyBrowser(group_2, SWT.NONE);
 		} else {
-			browser = new MyBrowser(group_2, SWT.NONE | SWT.MOZILLA);
+			mybrowser = new MyBrowser(group_2, SWT.NONE | SWT.MOZILLA);
 			logger.info("MOZILLA");
 		}
 
-		browser.addProgressListener(new ProgressListener() {
-			@Override
-			public void completed(ProgressEvent event) {
-				logger.info("页面加载完毕，当前url{}", browser.getUrl());
-				last = new Date();
-			}
-
-			@Override
-			public void changed(ProgressEvent event) {
-			}
-		});
-		browser.setUrl("http://baidu.com");
-		browser.setBounds(10, 49, 986, 583);
-		browser.setJavascriptEnabled(true);
+		mybrowser.setUrl("http://baidu.com");
+		mybrowser.setBounds(10, 49, 986, 583);
+		mybrowser.setJavascriptEnabled(true);
 	}
 
 	/**
@@ -1445,31 +1494,38 @@ public class SpiderView {
 		Iterator<Star> starIterator = (Iterator<Star>) stars.iterator();
 
 		if (starIterator.hasNext()) {
-			start = true;
-			check();
-			last = new Date();
+			mybrowser.startCheck();
 			Star currentStar = starIterator.next();
 			RobotResult currentRobotResult = new RobotResult();
 
-			currentRobotResult.setResultStatus(ResultStatus.创建.toString());
-			currentRobotResult.setEditStatus(EditStatus.未编辑.toString());
 			currentRobotResult.setStarId(currentStar.getId());
 			currentRobotResult.setTaskId(task.getId());
-			currentRobotResult.setCategoryId(currentStar.getCategoryId());
+			RobotResult robotResult = robotResultMng
+					.getByTaskAndStar(currentRobotResult);
 
-			robot.grabData(options, task, browser, currentStar,
+			if (robotResult != null) {
+				currentRobotResult = robotResult;
+			} else {
+				currentRobotResult.setEditStatus(EditStatus.未编辑.toString());
+			}
+
+			currentRobotResult.setResultStatus(ResultStatus.创建.toString());
+			currentRobotResult.setCategoryId(currentStar.getCategoryId());
+			robot.grabData(options, task, mybrowser, currentStar,
 					currentRobotResult, starIterator, new RobotListener() {
 						public void completed(Task task, Browser browser,
 								Star star, RobotResult robotResult,
 								Iterator<Star> starIterator) {
-							errorMessage("抓取任务完成");
-							start = false;
+							mybrowser.closeCheck();
 							showTask();
 							showRobotResult();
 							showTaskButton();
+							errorMessage("抓取任务完成");
 							alertMsg(shell, "抓取任务完成");
 						}
 					});
+		} else {
+			showTaskButton();
 		}
 	}
 
@@ -1873,34 +1929,6 @@ public class SpiderView {
 		}
 	}
 
-	// 检查浏览器是否正常运行下去，很多情况，比如百度贴吧，页面实际上加载完成了，但是加载事件不执行，需要系统监控,来让系统继续下去
-	public void check() {
-		Display.getDefault().timerExec((int) 1000, new Runnable() {
-			public void run() {
-				logger.info("start {},time {}", start, new Date().getTime()
-						- last.getTime());
-				String url = browser.getUrl();
-				logger.info("url:" + url);
-				String myurl = browser.getMyUrl();
-				logger.info("myurl:" + myurl);
-				String text = browser.getText();
-
-				if (start) {
-					if (new Date().getTime() - last.getTime() >= 25000) {
-						logger.info("是否百度贴吧：" + (text.indexOf("百度贴吧") > 0));
-						// 超过一定时间，浏览器没有反应，怎需要刷新页面
-						logger.info("超过{}，浏览器没有反应，怎需要刷新页面{}", 25000);
-
-						browser.setUrl(myurl);
-						last = new Date();
-					}
-
-					check();
-				}
-			}
-		});
-	}
-
 	private void saveBaiduIndex() {
 		if (StringUtils.isBlank(text_6.getText())) {
 			errorMessage("请输入百度指数");
@@ -1925,7 +1953,7 @@ public class SpiderView {
 		RobotResult robotResult = robotResultMng.getById((Long) robotResultEdit
 				.getData());
 		Map<String, List<String>> options = taskOptionMng.getMapByTaskAndName(
-				robotResult.getTaskId(), "维度");
+				robotResult.getTaskId(), TaskOptionType.维度.toString(), null);
 		robotResult.setBaiduIndex(Integer.valueOf(text_6.getText()));
 		robotResult.setEditStatus(EditStatus.已编辑.toString());
 		robotResultMng.save(robotResult);
@@ -1934,52 +1962,6 @@ public class SpiderView {
 		// showNewRobotResultTableItem(robotResult);
 		refreshRobotResultTableItem();
 		clearResultEdit();
-	}
-
-	/**
-	 * 
-	 * 
-	 * 描述:浏览器seturl之后，可能会造成页面没有加载。通过geturl获取到的地址是seturl之前的地址<br>
-	 * 该浏览器会在每次seturl之后，保留当时set的url地址
-	 *
-	 * @author liyixing
-	 * @version 1.0
-	 * @since 2016年5月7日 上午11:02:51
-	 */
-	public class MyBrowser extends Browser {
-		/**
-		 * 保留URL
-		 */
-		private String myUrl = "";
-
-		public MyBrowser(Composite parent, int style) {
-			super(parent, style);
-		}
-
-		@Override
-		protected void checkSubclass() {
-
-		}
-
-		public boolean setUrl(String url) {
-			myUrl = url;
-			boolean r = true;
-			// 刷新页面，如果browser当前地址和setUrl相同，不会刷新，所以不能调用setUrl，只能调用刷新
-			if (StringUtils.equals(getUrl(), url)) {
-				logger.info("refresh");
-				super.refresh();
-			} else {
-				logger.info("setUrl");
-				r = super.setUrl(url);
-				logger.info("set url : {}", r);
-			}
-
-			return r;
-		}
-
-		public String getMyUrl() {
-			return myUrl;
-		}
 	}
 
 	public static void alertMsg(Shell shell, String msg) {

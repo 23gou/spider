@@ -83,13 +83,4 @@ public interface StarMng {
 	 * @author liyixing 2015年9月12日 上午9:30:09
 	 */
 	public List<Star> getNotRobot(RobotResult robotResult);
-	/**
-	 * 
-	 * 描述:查询某期红，百度指数还没有更新过的
-	 * 
-	 * @param robotResult
-	 * @return
-	 * @author liyixing 2015年9月12日 上午9:30:09
-	 */
-	public List<Star> selectNotBaiduIndexRobot(RobotResult robotResult);
 }

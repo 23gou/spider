@@ -104,9 +104,7 @@ public class RobotResultMngImpl implements RobotResultMng {
 			countRank(robotResult, "baiduNews", "baiduNewsRank", false, true);
 		}
 
-		if (dimensions.contains("百度指数")) {
-			countRank(robotResult, "baiduIndex", "baiduIndexRank", false, false);
-		}
+		countRank(robotResult, "baiduIndex", "baiduIndexRank", false, false);
 	}
 
 	@Override
