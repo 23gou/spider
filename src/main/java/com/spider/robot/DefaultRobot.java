@@ -111,7 +111,7 @@ public class DefaultRobot implements Robot {
 		robotResultMng.countScore(robotResult);
 
 		Date endDate = new Date();
-		LOGGER.info("明星{}耗时", endDate.getTime()
+		LOGGER.info("明星{}耗时{}", star.getName(),endDate.getTime()
 				- (startDate == null ? task.getStartDateTime().getTime()
 						: startDate.getTime()));
 
