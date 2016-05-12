@@ -38,8 +38,6 @@ public class PageParase {
 	 * @author liyixing 2015年9月9日 下午6:39:01
 	 */
 	public static final Elements parse(Document document, String select) {
-		// Document document = Jsoup.parse(content);
-
 		return document.select(select);
 	}
 

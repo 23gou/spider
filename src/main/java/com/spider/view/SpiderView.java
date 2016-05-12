@@ -212,7 +212,6 @@ public class SpiderView {
 		combo.setText("\u6293\u53D6\u65F6\u95F4");
 
 		button = new Button(group_2, SWT.NONE);
-		button.setVisible(false);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -273,7 +272,7 @@ public class SpiderView {
 					grab(result, task, stars);
 				} else {
 					errorMessage("请选择要抓取的维度和分类");
-					alertMsg(shell,"请选择要抓取的维度和分类");
+					alertMsg(shell, "请选择要抓取的维度和分类");
 				}
 			}
 		});
@@ -290,9 +289,7 @@ public class SpiderView {
 				weiboLogin = true;
 				mybrowser.setUrl("http://weibo.com/");
 				if (baiduLogin) {
-					button.setVisible(true);
-					button_7.setVisible(true);
-					button_11.setVisible(true);
+					showTaskButton();
 				}
 			}
 		});
@@ -305,9 +302,7 @@ public class SpiderView {
 				baiduLogin = true;
 				mybrowser.setUrl("http://index.baidu.com");
 				if (weiboLogin) {
-					button.setVisible(true);
-					button_7.setVisible(true);
-					button_11.setVisible(true);
+					showTaskButton();
 				}
 			}
 		});
@@ -315,7 +310,6 @@ public class SpiderView {
 		button_6.setBounds(738, 11, 80, 27);
 
 		button_7 = new Button(group_2, SWT.NONE);
-		button_7.setVisible(false);
 		button_7.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -359,7 +353,6 @@ public class SpiderView {
 		label_3.setText("\u7EE7\u7EED\u4EFB\u52A1");
 
 		button_11 = new Button(group_2, SWT.NONE);
-		button_11.setVisible(false);
 		button_11.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -594,7 +587,7 @@ public class SpiderView {
 			}
 		});
 		button_8.setText("\u4E0A\u4E00\u9875");
-		button_8.setBounds(3, 605, 80, 27);
+		button_8.setBounds(92, 605, 60, 27);
 
 		Button button_9 = new Button(group_1, SWT.NONE);
 		button_9.addSelectionListener(new SelectionAdapter() {
@@ -606,10 +599,10 @@ public class SpiderView {
 			}
 		});
 		button_9.setText("\u4E0B\u4E00\u9875");
-		button_9.setBounds(89, 605, 80, 27);
+		button_9.setBounds(158, 605, 60, 27);
 
 		lblNewLabel_3 = new Label(group_1, SWT.NONE);
-		lblNewLabel_3.setBounds(185, 615, 400, 17);
+		lblNewLabel_3.setBounds(288, 610, 400, 17);
 
 		Group group_6 = new Group(group_1, SWT.NONE);
 		robotResultEdit = group_6;
@@ -725,6 +718,29 @@ public class SpiderView {
 		});
 		button_3.setText("\u5BFC\u51FA");
 
+		Button button_12 = new Button(group_1, SWT.NONE);
+		button_12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				robotResultPagination.setPageNo(robotResultPagination
+						.getTotalPage());
+				showRobotResult();
+			}
+		});
+		button_12.setText("\u5C3E\u9875");
+		button_12.setBounds(222, 605, 60, 27);
+
+		Button button_13 = new Button(group_1, SWT.NONE);
+		button_13.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				robotResultPagination.setPageNo(1);
+				showRobotResult();
+			}
+		});
+		button_13.setText("\u9996\u9875");
+		button_13.setBounds(26, 605, 60, 27);
+
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText("\u660E\u661F\u8BBE\u7F6E");
 
@@ -751,14 +767,6 @@ public class SpiderView {
 		TableColumn tableColumn_2 = new TableColumn(table, SWT.NONE);
 		tableColumn_2.setWidth(340);
 		tableColumn_2.setText("\u8D34\u5427\u5730\u5740");
-
-		// TableItem tableItem = new TableItem(table, SWT.NONE);
-		//
-		// tableItem.setText(0, "1");
-		// tableItem.setText(1, "赵薇");
-		// tableItem.setText(2, "http://weibo.com/zhaowei");
-		// tableItem.setText(3, "http://tieba.baidu.com/f?kw=%D5%D4%DE%B1");
-		// tableItem.setText(4, "内地女明星");
 
 		TableColumn tableColumn_24 = new TableColumn(table, SWT.NONE);
 		tableColumn_24.setWidth(100);
@@ -895,8 +903,6 @@ public class SpiderView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				clearStarEdit();
-				// combo_4.clearSelection();
-				// combo_4.sel
 			}
 		});
 		btnNewButton_2.setText("\u6E05\u7A7A");
@@ -926,16 +932,6 @@ public class SpiderView {
 					errorMessage("请输入明星姓名");
 					return;
 				}
-
-				// if (StringUtils.isBlank(star.getWeiboUrl())) {
-				// errorMessage("请输入明星微博主页地址");
-				// return;
-				// }
-				//
-				// if (StringUtils.isBlank(star.getTiebaUrl())) {
-				// errorMessage("请输入明星贴吧主页地址");
-				// return;
-				// }
 
 				errorMessage(null);
 
@@ -976,6 +972,7 @@ public class SpiderView {
 		showTask();
 		initStarTable();
 		initRobotResultTable();
+		hideTaskButton();
 	}
 
 	/**
@@ -1429,7 +1426,7 @@ public class SpiderView {
 		}
 
 		robotResultPagination = robotResultMng.find(robotResult, star,
-				robotResultPagination.getPageNo(), 12, "RobotResult.ID DESC");
+				robotResultPagination.getPageNo(), 17, "RobotResult.ID DESC");
 
 		lblNewLabel_3.setText("共" + robotResultPagination.getTotalPage() + "页（"
 				+ robotResultPagination.getTotalCount() + "记录），当前第"
@@ -1525,6 +1522,8 @@ public class SpiderView {
 						}
 					});
 		} else {
+			errorMessage("没有要抓取的数据");
+			alertMsg(shell, "没有要抓取的数据");
 			showTaskButton();
 		}
 	}
@@ -1536,7 +1535,6 @@ public class SpiderView {
 	 * @author liyixing 2015年9月17日 上午10:19:53
 	 */
 	public void hideTaskButton() {
-		// shell.setVisible(visible);
 		button.setEnabled(false);
 		button_7.setEnabled(false);
 		button_11.setEnabled(false);
@@ -1549,7 +1547,6 @@ public class SpiderView {
 	 * @author liyixing 2015年9月17日 上午10:19:53
 	 */
 	public void showTaskButton() {
-		// shell.setVisible(visible);
 		button.setEnabled(true);
 		button_7.setEnabled(true);
 		button_11.setEnabled(true);

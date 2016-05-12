@@ -111,21 +111,13 @@ public class WeiboFansRobot extends DefaultRobot {
 						}
 
 						starMng.save(star);
-
-						if (text.indexOf("他还没有发过微博") > 0
-								|| text.indexOf("她还没有发过微博") > 0) {
-							LOGGER.info("明星{}没有发过微博，需要重新抓取", star.getName());
-
-							robotResult.setWeiboFan(0);
-							robotResult.setWeiboFanInc(0);
-							grabData(options, task, browser, star, robotResult,
+						if (parseWeiboFan(options, task, browser, star,
+								robotResult, starIterator, robotListener, text)) {
+							next(options, task, browser, star, robotResult,
 									starIterator, robotListener);
+						} else {
 							return;
 						}
-
-						parseWeiboFan(task, star, robotResult, text);
-						next(options, task, browser, star, robotResult,
-								starIterator, robotListener);
 					}
 
 					/**
@@ -210,9 +202,12 @@ public class WeiboFansRobot extends DefaultRobot {
 	 * @param robotResult
 	 * @param text
 	 * @author liyixing 2015年9月11日 上午11:24:03
+	 * @return
 	 */
-	private void parseWeiboFan(Task task, Star star,
-			final RobotResult robotResult, String text) {
+	private boolean parseWeiboFan(Map<String, List<String>> options,
+			final Task task, final Browser browser, final Star star,
+			final RobotResult robotResult, final Iterator<Star> starIterator,
+			final RobotListener robotListener, String text) {
 		// 微博粉丝数
 		String weiboFan = PageParase
 				.parseTextWithPatternHtml(text,
@@ -256,6 +251,13 @@ public class WeiboFansRobot extends DefaultRobot {
 							- contrastRobotResult.getWeiboFan());
 				}
 			}
+
+			return true;
+		} else {
+			LOGGER.info("明星{}解析出来的微博粉丝数为空，重新解析", star.getName(), weiboFan);
+			grabData(options, task, browser, star, robotResult, starIterator,
+					robotListener);
+			return false;
 		}
 	}
 }
