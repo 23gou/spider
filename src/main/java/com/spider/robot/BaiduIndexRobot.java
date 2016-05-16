@@ -63,7 +63,7 @@ public class BaiduIndexRobot extends DefaultRobot {
 	}
 
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
