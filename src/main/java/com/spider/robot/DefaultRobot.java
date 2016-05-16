@@ -50,7 +50,7 @@ public class DefaultRobot implements Robot {
 	 * 
 	 * @author liyixing 2015年9月10日 下午3:40:46
 	 */
-	protected void next(Map<String, List<String>> options, Task task,
+	protected void next(final Map<String, List<String>> options, Task task,
 			Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		List<String> dimensions = options.get("维度");
@@ -88,7 +88,7 @@ public class DefaultRobot implements Robot {
 	}
 
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, Star star, RobotResult robotResult,
 			final Iterator<Star> starIterator, final RobotListener robotListener) {
 		robotResult.setResultStatus(ResultStatus.完成.toString());
@@ -205,7 +205,7 @@ public class DefaultRobot implements Robot {
 	}
 
 	@Override
-	public boolean validateZero(Map<String, List<String>> options, Task task,
+	public boolean validateZero(final Map<String, List<String>> options, Task task,
 			Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		if (times == 2) {
@@ -226,7 +226,7 @@ public class DefaultRobot implements Robot {
 	 * 
 	 * @author liyixing 2016年5月9日 上午10:27:58
 	 */
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return true;

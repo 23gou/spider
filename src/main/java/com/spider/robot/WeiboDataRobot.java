@@ -50,14 +50,14 @@ public class WeiboDataRobot extends DefaultRobot {
 		setName("微指数");
 	}
 
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getWeiboData() > 0;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void parseValue(Map<String, List<String>> options, final Task task,
+	private void parseValue(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener, final ProgressAdapter my,
@@ -97,7 +97,7 @@ public class WeiboDataRobot extends DefaultRobot {
 	}
 
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {

@@ -56,7 +56,7 @@ public class BaiduIndexRobot extends DefaultRobot {
 		setName("百度指数");
 	}
 	
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return StringUtils.isNotBlank(robotResult.getBaiduIndexImg());
@@ -83,7 +83,7 @@ public class BaiduIndexRobot extends DefaultRobot {
 			 * @author liyixing 2015年9月12日 下午5:26:28
 			 */
 
-			private void parse(Map<String, List<String>> options,
+			private void parse(final Map<String, List<String>> options,
 					final Task task, final Browser browser, final Star star,
 					final RobotResult robotResult,
 					final Iterator<Star> starIterator,
@@ -195,7 +195,7 @@ public class BaiduIndexRobot extends DefaultRobot {
 					 * @return
 					 * @author liyixing 2016年5月6日 下午2:25:25
 					 */
-					private Object getData(Map<String, List<String>> options,
+					private Object getData(final Map<String, List<String>> options,
 							final Task task, final Browser browser,
 							final Star star, final RobotResult robotResult,
 							final Iterator<Star> starIterator,
@@ -245,7 +245,7 @@ public class BaiduIndexRobot extends DefaultRobot {
 					 * @return
 					 * @author liyixing 2016年5月6日 下午2:25:07
 					 */
-					private boolean validatePage(
+					private boolean validatePage(final 
 							Map<String, List<String>> options, final Task task,
 							final Browser browser, final Star star,
 							final RobotResult robotResult,

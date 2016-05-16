@@ -43,14 +43,14 @@ public class TiebaRobot extends DefaultRobot {
 		this.setName("贴吧会员与帖子增长");
 	}
 	
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getTiebaMemberNum() > 0 && robotResult.getTiebaPostNum() > 0;
 	}
 
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
@@ -77,7 +77,7 @@ public class TiebaRobot extends DefaultRobot {
 			 * @author liyixing 2015年9月25日 下午3:08:36
 			 */
 
-			private void parse(Map<String, List<String>> options,
+			private void parse(final Map<String, List<String>> options,
 					final Task task, final Browser browser, final Star star,
 					final RobotResult robotResult,
 					final Iterator<Star> starIterator,

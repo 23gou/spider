@@ -52,8 +52,9 @@ public class WeiboContentRobot extends DefaultRobot {
 		setName("微博转评赞");
 	}
 
-	public boolean validateDimensionZero(Map<String, List<String>> options,
-			Task task, Browser browser, Star star, RobotResult robotResult,
+	public boolean validateDimensionZero(
+			final Map<String, List<String>> options, Task task,
+			Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getWeiboComment() > 0
 				&& robotResult.getWeiboForward() > 0
@@ -61,8 +62,8 @@ public class WeiboContentRobot extends DefaultRobot {
 	}
 
 	@Override
-	public void grabData(final Map<String, List<String>> options, final Task task,
-			final Browser browser, final Star star,
+	public void grabData(final Map<String, List<String>> options,
+			final Task task, final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
 
@@ -89,7 +90,7 @@ public class WeiboContentRobot extends DefaultRobot {
 			 * @author liyixing 2015年9月18日 下午1:29:53
 			 */
 
-			private void parse(Map<String, List<String>> options,
+			private void parse(final Map<String, List<String>> options,
 					final Task task, final Browser browser, final Star star,
 					final RobotResult robotResult,
 					final Iterator<Star> starIterator,
@@ -218,9 +219,9 @@ public class WeiboContentRobot extends DefaultRobot {
 					 * @author liyixing 2016年5月7日 上午9:39:25
 					 */
 					private boolean validateLoginAndTimes(
-							Map<String, List<String>> options, final Task task,
-							final Browser browser, final Star star,
-							final RobotResult robotResult,
+							final Map<String, List<String>> options,
+							final Task task, final Browser browser,
+							final Star star, final RobotResult robotResult,
 							final Iterator<Star> starIterator,
 							final RobotListener robotListener, String text) {
 						if (text.indexOf("<!-- 登陆模块 -->") >= 0) {
@@ -370,7 +371,7 @@ public class WeiboContentRobot extends DefaultRobot {
 			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 				Date date1 = null;
 				Date date2 = null;
-				
+
 				try {
 					date1 = UtilDateTime.parse(
 							o1.get("date").toString().trim(), "ss秒前");
@@ -416,7 +417,7 @@ public class WeiboContentRobot extends DefaultRobot {
 					LOGGER.info("格式mm分钟前失败，{}", o1.get("date").toString()
 							.trim());
 				}
-				
+
 				try {
 					date2 = UtilDateTime.parse(
 							o2.get("date").toString().trim(), "ss秒前");

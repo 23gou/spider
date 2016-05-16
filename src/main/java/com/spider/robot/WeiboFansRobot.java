@@ -45,14 +45,14 @@ public class WeiboFansRobot extends DefaultRobot {
 
 	/**
 	 */
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getWeiboFan() > 0;
 	}
 
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
@@ -80,7 +80,7 @@ public class WeiboFansRobot extends DefaultRobot {
 			 * @author liyixing 2015年9月18日 下午1:29:53
 			 */
 
-			private void parse(Map<String, List<String>> options,
+			private void parse(final Map<String, List<String>> options,
 					final Task task, final Browser browser, final Star star,
 					final RobotResult robotResult,
 					final Iterator<Star> starIterator,
@@ -136,7 +136,7 @@ public class WeiboFansRobot extends DefaultRobot {
 					 * @author liyixing 2016年5月7日 上午9:39:25
 					 */
 					private boolean validateLoginAndTimes(
-							Map<String, List<String>> options, final Task task,
+							final Map<String, List<String>> options, final Task task,
 							final Browser browser, final Star star,
 							final RobotResult robotResult,
 							final Iterator<Star> starIterator,
@@ -204,7 +204,7 @@ public class WeiboFansRobot extends DefaultRobot {
 	 * @author liyixing 2015年9月11日 上午11:24:03
 	 * @return
 	 */
-	private boolean parseWeiboFan(Map<String, List<String>> options,
+	private boolean parseWeiboFan(final Map<String, List<String>> options,
 			final Task task, final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener, String text) {

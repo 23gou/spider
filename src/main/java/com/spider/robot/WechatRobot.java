@@ -42,14 +42,14 @@ public class WechatRobot extends DefaultRobot {
 		setName("微信");
 	}
 
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getWechatNumber() > 0;
 	}
 	
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
@@ -73,7 +73,7 @@ public class WechatRobot extends DefaultRobot {
 		}
 	}
 
-	public void parse(Map<String, List<String>> options, final Task task,
+	public void parse(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {

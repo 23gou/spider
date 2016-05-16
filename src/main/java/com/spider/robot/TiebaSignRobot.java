@@ -44,14 +44,14 @@ public class TiebaSignRobot extends DefaultRobot {
 		setName("贴吧签到");
 	}
 
-	public boolean validateDimensionZero(Map<String, List<String>> options,
+	public boolean validateDimensionZero(final Map<String, List<String>> options,
 			Task task, Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getTiebaSign() > 0;
 	}
 	
 	@Override
-	public void grabData(Map<String, List<String>> options, final Task task,
+	public void grabData(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
@@ -89,7 +89,7 @@ public class TiebaSignRobot extends DefaultRobot {
 	 * @param text
 	 * @author liyixing 2015年9月11日 下午6:12:36
 	 */
-	private void parse(Map<String, List<String>> options, final Task task,
+	private void parse(final Map<String, List<String>> options, final Task task,
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {

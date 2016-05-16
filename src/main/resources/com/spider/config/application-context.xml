@@ -67,10 +67,25 @@
 
 	<bean id="noneRobot" class="com.spider.robot.NoneRobot">
 		<property name="next">
+			<ref bean="tiebaUrlRobot" />
+		</property>
+		<property name="must" value="true"></property>
+	</bean>
+	
+	<bean id="tiebaUrlRobot" class="com.spider.robot.TiebaUrlRobot">
+		<property name="next">
+			<ref bean="wiboUrlRobot" />
+		</property>
+		<property name="must" value="true"></property>
+	</bean>
+	
+	<bean id="wiboUrlRobot" class="com.spider.robot.WeiboUrlRobot">
+		<property name="next">
 			<ref bean="tiebaRobot" />
 		</property>
 		<property name="must" value="true"></property>
 	</bean>
+	
 	<bean id="tiebaRobot" class="com.spider.robot.TiebaRobot">
 		<property name="next">
 			<ref bean="weiboContentRobot" />
