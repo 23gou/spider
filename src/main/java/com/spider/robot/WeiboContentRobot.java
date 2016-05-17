@@ -96,7 +96,7 @@ public class WeiboContentRobot extends DefaultRobot {
 					final Iterator<Star> starIterator,
 					final RobotListener robotListener) {
 
-				Display.getDefault().timerExec((int) 2000, new Runnable() {
+				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					@SuppressWarnings("unchecked")
 					public void run() {
 						String text = browser.getText();

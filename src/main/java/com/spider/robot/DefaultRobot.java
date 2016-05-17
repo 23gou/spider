@@ -118,7 +118,7 @@ public class DefaultRobot implements Robot {
 		// 进入下一个明星
 		if (starIterator.hasNext()) {
 			// 过5秒之后再执行
-			Display.getDefault().timerExec((int) 6000, new Runnable() {
+			Display.getDefault().timerExec((int) 3000, new Runnable() {
 				public void run() {
 					RobotResult nextRobotResult = new RobotResult();
 					Star nextStar = starIterator.next();

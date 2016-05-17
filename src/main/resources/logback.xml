@@ -151,7 +151,7 @@
 		name="logs.configuration" additivity="false"> <appender-ref ref="STDOUT" 
 		/> </logger> -->
 	<!-- 最高级别配置 不会继承其他输出，配置的 logger 会对root进行继承 除非设置additivity=false -->
-	<root level="DEBUG">
+	<root level="WARN">
 		<appender-ref ref="STDOUT" />
 		<!-- <appender-ref ref="DEBUG_FILE" /> -->
 		<appender-ref ref="INFO_FILE" />

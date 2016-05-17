@@ -89,15 +89,6 @@ public class TiebaRobot extends DefaultRobot {
 							// 解析贴吧关键字
 							String text = browser.getText();
 
-							if (StringUtils.isBlank(text)) {
-								LOGGER.info("明星{}解析出来的贴吧数据是空：{}",
-										star.getName(), text);
-								grabData(options, task, browser, star,
-										robotResult, starIterator,
-										robotListener);
-								return;
-							}
-
 							String tiebaName = parseTitle(text);
 							LOGGER.info("明星{}解析出来的贴吧名称是{}", star.getName(),
 									tiebaName);
@@ -122,9 +113,9 @@ public class TiebaRobot extends DefaultRobot {
 								next(options, task, browser, star, robotResult,
 										starIterator, robotListener);
 							} else {
-								LOGGER.info("明星{}解析出来的贴吧名称为空是{}",
+								LOGGER.info("明星{}解析出来的贴吧名称为空，等待重新解析",
 										star.getName(), tiebaName);
-								grabData(options, task, browser, star,
+								parse(options, task, browser, star,
 										robotResult, starIterator,
 										robotListener);
 								return;

@@ -78,7 +78,7 @@ public class WechatRobot extends DefaultRobot {
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
 		// 解析微信
-		Display.getDefault().timerExec((int) 2000, new Runnable() {
+		Display.getDefault().timerExec((int) 1000, new Runnable() {
 			public void run() {
 				String select = "totalItems (\\d{0,})";
 				String text = browser.getText();
