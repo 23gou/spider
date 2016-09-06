@@ -137,30 +137,31 @@ public class WeiboContentRobot extends DefaultRobot {
 
 						List<Map<String, Object>> rvs = null;
 						try {
+							String js = 
+									"var $_=function (p,e,a,av){var es = [];var esi = 0;var divs = p.getElementsByTagName(e); for(var i = 0; i < divs.length; i++){var div = divs[i]; if(div.getAttribute(a)==av){es[esi++]=div;}}return es};"
+									// 清理转发的微博内容
+									+ "var eitems = $_(document,'div','class','WB_feed_expand');"
+									+ "for(var i = 0;i<eitems.length;i++){"
+									+ "eitems[i].innerHTML='';"
+									+ "}"
+									// 获取自己发的微博内容
+									+ "var items = $_(document,'div','action-type','feed_list_item');"
+									+ "var r = '{\"data\":[';"
+									+ "for(var i = 0; i<items.length&&i<8;i++) {"
+									+ "var date = $_(items[i],'a','node-type','feed_list_item_date');"
+									+ "var feed_list_options = $_(items[i],'div','node-type','feed_list_options')[0];"
+									+ "var forward = $_(feed_list_options,'span','node-type','forward_btn_text');"
+									+ "var comment = $_(feed_list_options,'span','node-type','comment_btn_text');"
+									+ "var like = $_(feed_list_options,'span','node-type','like_status')[0].getElementsByTagName('em');"
+									+ "if(i!==0) {"
+									+ "	r=r+',';"
+									+ "}"
+									+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[1].innerHTML+'\"'+'}'"
+									+ "}"
+									+ "r=r+']}';"
+									+ "return r;";
 							String vs = browser
-									.evaluate(
-											"var $_=function (p,e,a,av){var es = [];var esi = 0;var divs = p.getElementsByTagName(e); for(var i = 0; i < divs.length; i++){var div = divs[i]; if(div.getAttribute(a)==av){es[esi++]=div;}}return es};"
-													// 清理转发的微博内容
-													+ "var eitems = $_(document,'div','class','WB_feed_expand');"
-													+ "for(var i = 0;i<eitems.length;i++){"
-													+ "eitems[i].innerHTML='';"
-													+ "}"
-													// 获取自己发的微博内容
-													+ "var items = $_(document,'div','action-type','feed_list_item');"
-													+ "var r = '{\"data\":[';"
-													+ "for(var i = 0; i<items.length&&i<8;i++) {"
-													+ "var date = $_(items[i],'a','node-type','feed_list_item_date');"
-													+ "var feed_list_options = $_(items[i],'div','node-type','feed_list_options')[0];"
-													+ "var forward = $_(feed_list_options,'span','node-type','forward_btn_text');"
-													+ "var comment = $_(feed_list_options,'span','node-type','comment_btn_text');"
-													+ "var like = $_(feed_list_options,'span','node-type','like_status')[0].getElementsByTagName('em');"
-													+ "if(i!==0) {"
-													+ "	r=r+',';"
-													+ "}"
-													+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[0].innerHTML+'\"'+'}'"
-													+ "}"
-													+ "r=r+']}';"
-													+ "return r;").toString();
+									.evaluate(js).toString();
 							vs = vs.replace("class=\"W_ficon ficon_forward",
 									"class='W_ficon ficon_forward").replace(
 									"class=\"W_ficon ficon_repeat",
