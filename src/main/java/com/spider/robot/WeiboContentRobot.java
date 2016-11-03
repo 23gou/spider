@@ -147,7 +147,11 @@ public class WeiboContentRobot extends DefaultRobot {
 									// 获取自己发的微博内容
 									+ "var items = $_(document,'div','action-type','feed_list_item');"
 									+ "var r = '{\"data\":[';"
-									+ "for(var i = 0; i<items.length&&i<8;i++) {"
+									+ "var x = 0;"
+									+ "for(var i = 0; i<items.length;i++) {"
+									//清楚点赞过的内容
+									+ "var maintitle = $_(items[i],'span','class','main_title');if(maintitle.length){continue;}"
+									+ "x++;"
 									+ "var date = $_(items[i],'a','node-type','feed_list_item_date');"
 									+ "var feed_list_options = $_(items[i],'div','node-type','feed_list_options')[0];"
 									+ "var forward = $_(feed_list_options,'span','node-type','forward_btn_text');"
@@ -156,7 +160,8 @@ public class WeiboContentRobot extends DefaultRobot {
 									+ "if(i!==0) {"
 									+ "	r=r+',';"
 									+ "}"
-									+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[1].innerHTML+'\"'+'}'"
+									+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[1].innerHTML+'\"'+'}';"
+									+ "if(x>=7){break;}"
 									+ "}"
 									+ "r=r+']}';"
 									+ "return r;";
