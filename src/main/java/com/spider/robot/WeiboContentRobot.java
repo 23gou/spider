@@ -151,17 +151,19 @@ public class WeiboContentRobot extends DefaultRobot {
 									+ "for(var i = 0; i<items.length;i++) {"
 									//清楚点赞过的内容
 									+ "var maintitle = $_(items[i],'span','class','main_title');if(maintitle.length){continue;}"
-									+ "x++;"
+									//清理置顶的内容
+									+ "var top = $_(items[i],'span','class','W_icon_feedpin');if(top.length){continue;}"
 									+ "var date = $_(items[i],'a','node-type','feed_list_item_date');"
 									+ "var feed_list_options = $_(items[i],'div','node-type','feed_list_options')[0];"
 									+ "var forward = $_(feed_list_options,'span','node-type','forward_btn_text');"
 									+ "var comment = $_(feed_list_options,'span','node-type','comment_btn_text');"
 									+ "var like = $_(feed_list_options,'span','node-type','like_status')[0].getElementsByTagName('em');"
-									+ "if(i!==0) {"
+									+ "if(x!==0) {"
 									+ "	r=r+',';"
 									+ "}"
 									+ "r=r+'{\"date\":\"'+date[0].innerHTML+'\",\"forward\":\"'+forward[0].innerHTML+'\",\"comment\":\"'+comment[0].innerHTML+'\",\"like\":\"'+like[1].innerHTML+'\"'+'}';"
 									+ "if(x>=7){break;}"
+									+ "x++;"
 									+ "}"
 									+ "r=r+']}';"
 									+ "return r;";
