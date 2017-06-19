@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import cn.gou23.cgodo.util.UtilDateTime;
+import com.lsiding.cgodo.util.UtilDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spider.entity.RobotResult;

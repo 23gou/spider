@@ -243,6 +243,19 @@ public class TiebaRobot extends DefaultRobot {
 									.parseTextWithPatternHtml(text,
 											"<title>[\\s]{0,}([\\S]{0,})_百度贴吧[\\s]{0,}<");
 						}
+						
+						if (StringUtils.isBlank(tiebaName)) {
+							tiebaName = PageParase
+									.parseTextWithPatternHtml(text,
+											"<TITLE>[\\s]{0,}([\\S]{0,})-百度贴吧");
+						}
+						
+						if (StringUtils.isBlank(tiebaName)) {
+							tiebaName = PageParase
+									.parseTextWithPatternHtml(text,
+											"<title>[\\s]{0,}([\\S]{0,})-百度贴吧");
+						}
+						
 						return tiebaName;
 					}
 				});

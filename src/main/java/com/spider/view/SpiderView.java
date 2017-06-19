@@ -46,9 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import cn.gou23.cgodo.jxl.Jxl;
-import cn.gou23.cgodo.util.UtilBean;
-import cn.gou23.cgodo.util.UtilLog;
+import com.lsiding.cgodo.jxl.Jxl;
+import com.lsiding.cgodo.util.UtilBean;
+import com.lsiding.cgodo.util.UtilLog;
 
 import com.common.jdbc.page.Pagination;
 import com.common.util.DateUtils;
