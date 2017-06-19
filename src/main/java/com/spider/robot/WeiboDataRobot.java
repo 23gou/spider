@@ -101,6 +101,7 @@ public class WeiboDataRobot extends DefaultRobot {
 			final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
+		LOGGER.info("明星"+star.getName()+"weibodata");
 		robotResult.setWeiboData(0);
 		// 上周一
 		final Date preWeek = UtilDateTime.getPreMondy(task.getStartDateTime());
@@ -198,6 +199,7 @@ public class WeiboDataRobot extends DefaultRobot {
 				browser.removeProgressListener(this);
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
+						LOGGER.info("明星"+star.getName() + "开始查询id");
 						// 计算时间，一周范围，上周一到这周
 						Date now = new Date();
 						browser.addProgressListener(weiboDataIdListener);

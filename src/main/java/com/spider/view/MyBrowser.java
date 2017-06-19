@@ -64,6 +64,7 @@ public class MyBrowser extends Browser {
 	public boolean setUrl(String url) {
 		myUrl = url;
 		boolean r = true;
+		LOGGER.info("url:"+url);
 		// 刷新页面，如果browser当前地址和setUrl相同，不会刷新，所以不能调用setUrl，只能调用刷新
 		if (StringUtils.equals(getUrl(), url)) {
 			LOGGER.info("refresh");

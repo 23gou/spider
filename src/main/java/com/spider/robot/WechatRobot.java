@@ -65,9 +65,10 @@ public class WechatRobot extends DefaultRobot {
 
 		browser.addProgressListener(addWechatListener);
 		try {
+			//?&query=郁可唯
 			browser.setUrl("http://weixin.sogou.com/weixin?query="
 					+ URLEncoder.encode(star.getName(), "utf-8")
-					+ "&fr=sgsearch&sut=1138&type=2&ie=utf8&sst0=1441871133479&sourceid=inttime_week&interation=&interV=kKIOkrELjboJmLkElbYTkKIKmbELjbkRmLkElbk%3D_1893302304&tsn=2");
+					+ "&type=2&ie=utf8&tsn=2&ft=&et=&interation=null&wxid=&usip=null&from=tool");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
@@ -80,7 +81,7 @@ public class WechatRobot extends DefaultRobot {
 		// 解析微信
 		Display.getDefault().timerExec((int) 1000, new Runnable() {
 			public void run() {
-				String select = "totalItems (\\d{0,})";
+				String select = "<!--resultbarnum:(\\S{0,})-->";
 				String text = browser.getText();
 				
 				if(text.indexOf("没有找到相关的微信公众号文章。")>0) {
@@ -96,11 +97,11 @@ public class WechatRobot extends DefaultRobot {
 					return;
 				}
 				String number = PageParase.parseTextWithPatternHtml(text,
-						"找到约<resnum id=\"scd_num\">(\\S{0,})</resnum>条结果")
+						"<div class=\"mun\">找到约(\\S{0,})条结果")
 						.replace(",", "");
 				if (StringUtils.isBlank(number)) {
 					number = PageParase.parseTextWithPatternHtml(text,
-							"找到<resnum id=\"scd_num\">(\\S{0,})</resnum>条结果")
+							"找到<div class=\"mun\">(\\S{0,})条结果")
 							.replace(",", "");
 
 				}
