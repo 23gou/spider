@@ -991,7 +991,7 @@ public class SpiderView {
 			logger.info("MOZILLA");
 		}
 
-		mybrowser.setUrl("http://baidu.com");
+		mybrowser.setUrl("http://www.lsiding.com");
 		mybrowser.setBounds(10, 49, 986, 583);
 		mybrowser.setJavascriptEnabled(true);
 	}
