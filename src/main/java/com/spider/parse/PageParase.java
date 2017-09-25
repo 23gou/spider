@@ -18,6 +18,8 @@ import org.eclipse.swt.browser.Browser;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import com.lsiding.cgodo.util.UtilLog;
+
 /**
  * 
  * 
@@ -136,7 +138,9 @@ public class PageParase {
 
 		String script = "location.href='" + href + "'";
 
-		browser.evaluate(script);
+		if(!browser.execute(script)){
+			UtilLog.error("js执行失败");
+		}
 		return id;
 
 	}

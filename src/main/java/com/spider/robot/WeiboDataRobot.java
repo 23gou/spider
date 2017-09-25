@@ -80,7 +80,7 @@ public class WeiboDataRobot extends DefaultRobot {
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.info("明星{}的微博指数出错，重新开始", star.getName());
+				LOGGER.error("明星{}的微博指数出错，重新开始", star.getName(), e);
 				browser.addProgressListener(my);
 				browser.refresh();
 			}
