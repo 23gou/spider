@@ -1,8 +1,10 @@
 package com.spider.view;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
@@ -10,6 +12,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.lsiding.cgodo.util.UtilMisc;
 
 /**
  * 
@@ -61,10 +65,26 @@ public class MyBrowser extends Browser {
 
 	}
 
+	public boolean setUrl(String url, String postData, String[] headers) {
+		List<String> headsList = UtilMisc
+				.toList(new String[] {
+						"User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36 QIHU 360SE",
+						"X-Requested-With:XMLHttpRequest",
+						"Accept-Encoding: gzip, deflate, sdch",
+						"Accept-Language: zh-CN,zh;q=0.8" });
+
+		if (ArrayUtils.isNotEmpty(headers)) {
+			headsList.addAll(UtilMisc.toList(headers));
+		}
+
+		String[] hs = headsList.toArray(new String[headsList.size()]);
+		return super.setUrl(url, postData, hs);
+	}
+
 	public boolean setUrl(String url) {
 		myUrl = url;
 		boolean r = true;
-		LOGGER.info("url:"+url);
+		LOGGER.info("url:" + url);
 		// 刷新页面，如果browser当前地址和setUrl相同，不会刷新，所以不能调用setUrl，只能调用刷新
 		if (StringUtils.equals(getUrl(), url)) {
 			LOGGER.info("refresh");
@@ -93,7 +113,7 @@ public class MyBrowser extends Browser {
 		last = new Date();
 		check();
 	}
-	
+
 	/**
 	 * 
 	 * 描述:关闭监控机制

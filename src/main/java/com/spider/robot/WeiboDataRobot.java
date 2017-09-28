@@ -17,10 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.lsiding.cgodo.util.UtilDateTime;
-
 import com.common.util.DateUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lsiding.cgodo.util.UtilDateTime;
 import com.spider.entity.RobotResult;
 import com.spider.entity.Star;
 import com.spider.entity.Task;
@@ -50,15 +49,16 @@ public class WeiboDataRobot extends DefaultRobot {
 		setName("微指数");
 	}
 
-	public boolean validateDimensionZero(final Map<String, List<String>> options,
-			Task task, Browser browser, Star star, RobotResult robotResult,
+	public boolean validateDimensionZero(
+			final Map<String, List<String>> options, Task task,
+			Browser browser, Star star, RobotResult robotResult,
 			Iterator<Star> starIterator, RobotListener robotListener) {
 		return robotResult.getWeiboData() > 0;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void parseValue(final Map<String, List<String>> options, final Task task,
-			final Browser browser, final Star star,
+	private void parseValue(final Map<String, List<String>> options,
+			final Task task, final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener, final ProgressAdapter my,
 			String text) {
@@ -91,17 +91,18 @@ public class WeiboDataRobot extends DefaultRobot {
 					robotListener);
 		} catch (Exception e) {
 			LOGGER.info("明星{}的微博指数出错，重新开始", star.getName());
-			grabData(options, task, browser, star, robotResult, starIterator, robotListener);
+			grabData(options, task, browser, star, robotResult, starIterator,
+					robotListener);
 			return;
 		}
 	}
 
 	@Override
-	public void grabData(final Map<String, List<String>> options, final Task task,
-			final Browser browser, final Star star,
+	public void grabData(final Map<String, List<String>> options,
+			final Task task, final Browser browser, final Star star,
 			final RobotResult robotResult, final Iterator<Star> starIterator,
 			final RobotListener robotListener) {
-		LOGGER.info("明星"+star.getName()+"weibodata");
+		LOGGER.info("明星" + star.getName() + "weibodata");
 		robotResult.setWeiboData(0);
 		// 上周一
 		final Date preWeek = UtilDateTime.getPreMondy(task.getStartDateTime());
@@ -199,10 +200,45 @@ public class WeiboDataRobot extends DefaultRobot {
 				browser.removeProgressListener(this);
 				Display.getDefault().timerExec((int) 1000, new Runnable() {
 					public void run() {
-						LOGGER.info("明星"+star.getName() + "开始查询id");
+						LOGGER.info("明星" + star.getName() + "开始查询id");
 						// 计算时间，一周范围，上周一到这周
-						Date now = new Date();
 						browser.addProgressListener(weiboDataIdListener);
+						// String script = "$('.long-search input').val('"
+						// + star.getName() + "');";
+						// if (!browser.execute(script)) {
+						// UtilLog.error("设置明星{}微博指数关键字失败，js无法执行",
+						// star.getName());
+						// next(options, task, browser, star, robotResult,
+						// starIterator, robotListener);
+						// return;
+						// }
+						//
+						// script = "$('.time-search:first input').val('"
+						// + DateUtils.formatDate(preWeek,
+						// DateUtils.YYYY_MM_DD) + "')";
+						//
+						// if (!browser.execute(script)) {
+						// UtilLog.error("设置明星{}关微博指数开始时间失败，js无法执行",
+						// star.getName());
+						// next(options, task, browser, star, robotResult,
+						// starIterator, robotListener);
+						// return;
+						// }
+						//
+						// script = "$('.time-search:last input').val('"
+						// + DateUtils.formatDate(UtilDateTime
+						// .getPreSundy(task.getStartDateTime()),
+						// DateUtils.YYYY_MM_DD) + "')";
+						//
+						// if (!browser.execute(script)) {
+						// UtilLog.error("设置明星{}关微博指数结束时间失败，js无法执行",
+						// star.getName());
+						// next(options, task, browser, star, robotResult,
+						// starIterator, robotListener);
+						// return;
+						// }
+
+						Date now = new Date();
 						PageParase.toUrl(
 								browser,
 								"http://data.weibo.com/index/ajax/contrast?key2="
