@@ -1,1 +1,1 @@
-mvn install assembly:assembly  -X
+mvn clean&mvn install assembly:assembly  -X
