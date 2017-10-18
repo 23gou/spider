@@ -183,7 +183,7 @@ public class SpiderView {
 		Display display = Display.getDefault();
 		shell = new Shell(display, SWT.CLOSE);
 		shell.setSize(1020, 628);
-		shell.setText("明星抓取v0.0.1");
+		shell.setText("明星抓取v0.0.2");
 		shell.setBounds(1, 1, 1020, 750);
 
 		shell.addShellListener(new ShellAdapter() {

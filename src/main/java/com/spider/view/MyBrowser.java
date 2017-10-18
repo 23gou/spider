@@ -88,7 +88,8 @@ public class MyBrowser extends Browser {
 		// 刷新页面，如果browser当前地址和setUrl相同，不会刷新，所以不能调用setUrl，只能调用刷新
 		if (StringUtils.equals(getUrl(), url)) {
 			LOGGER.info("refresh");
-			super.refresh();
+			//super.refresh();.
+			super.setUrl(url);
 		} else {
 			LOGGER.info("setUrl");
 			r = super.setUrl(url);
@@ -147,7 +148,7 @@ public class MyBrowser extends Browser {
 						// 超过一定时间，浏览器没有反应，怎需要刷新页面
 						LOGGER.info("超过{}，浏览器没有反应，需要刷新页面", 25000);
 
-						myself.setUrl(myurl);
+						myself.refresh();
 						last = new Date();
 					}
 
